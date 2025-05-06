@@ -1,0 +1,182 @@
+{
+  "1": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "노트북 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 1,
+        "name": "삼성"
+      },
+      {
+        "brandId": 2,
+        "name": "LG"
+      },
+      {
+        "brandId": 3,
+        "name": "애플"
+      },
+      {
+        "brandId": 11,
+        "name": "레노버"
+      },
+      {
+        "brandId": 12,
+        "name": "델"
+      },
+      {
+        "brandId": 13,
+        "name": "ASUS"
+      },
+      {
+        "brandId": 14,
+        "name": "HP"
+      },
+      {
+        "brandId": 17,
+        "name": "마이크로소프트"
+      },
+      {
+        "brandId": 22,
+        "name": "한성컴퓨터"
+      }
+    ]
+  },
+  "2": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "스마트폰 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 1,
+        "name": "삼성"
+      },
+      {
+        "brandId": 3,
+        "name": "애플"
+      }
+    ]
+  },
+  "3": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "태블릿 PC 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 3,
+        "name": "애플"
+      }
+    ]
+  },
+  "4": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "카메라 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 4,
+        "name": "소니"
+      },
+      {
+        "brandId": 5,
+        "name": "캐논"
+      }
+    ]
+  },
+  "5": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "냉장고 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 1,
+        "name": "삼성"
+      },
+      {
+        "brandId": 2,
+        "name": "LG"
+      }
+    ]
+  },
+  "6": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "TV 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 1,
+        "name": "삼성"
+      },
+      {
+        "brandId": 2,
+        "name": "LG"
+      }
+    ]
+  },
+  "7": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "헤드폰 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 4,
+        "name": "소니"
+      }
+    ]
+  },
+  "8": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "스피커 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 28,
+        "name": "BOSE"
+      }
+    ]
+  },
+  "9": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "게임기 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 4,
+        "name": "소니"
+      },
+      {
+        "brandId": 17,
+        "name": "마이크로소프트"
+      }
+    ]
+  },
+  "10": {
+    "success": true,
+    "code": 1073741824,
+    "httpStatus": 1073741824,
+    "message": "스마트워치 브랜드 조회 성공",
+    "result": [
+      {
+        "brandId": 1,
+        "name": "삼성"
+      },
+      {
+        "brandId": 3,
+        "name": "애플"
+      },
+      {
+        "brandId": 23,
+        "name": "샤오미"
+      }
+    ]
+  }
+}

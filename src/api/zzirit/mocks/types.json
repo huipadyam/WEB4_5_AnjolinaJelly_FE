@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "code": 1073741824,
+  "httpStatus": 1073741824,
+  "message": "string",
+  "result": [
+    {
+      "typeId": 1,
+      "name": "노트북"
+    },
+    {
+      "typeId": 2,
+      "name": "스마트폰"
+    },
+    {
+      "typeId": 3,
+      "name": "태블릿 PC"
+    },
+    {
+      "typeId": 4,
+      "name": "카메라"
+    },
+    {
+      "typeId": 5,
+      "name": "냉장고"
+    },
+    {
+      "typeId": 6,
+      "name": "TV"
+    },
+    {
+      "typeId": 7,
+      "name": "헤드폰"
+    },
+    {
+      "typeId": 8,
+      "name": "스피커"
+    },
+    {
+      "typeId": 9,
+      "name": "게임기"
+    },
+    {
+      "typeId": 10,
+      "name": "스마트워치"
+    }
+  ]
+}
