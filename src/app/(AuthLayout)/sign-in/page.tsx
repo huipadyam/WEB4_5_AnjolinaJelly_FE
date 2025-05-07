@@ -84,7 +84,16 @@ export default function SignIn() {
             "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
         }}
       >
-        <Typography component="h1" variant="h3" sx={{ fontWeight: 700 }}>
+        <Typography
+          component="h1"
+          variant="h2"
+          sx={{ fontWeight: 700, mb: 2 }}
+          color="primary.dark"
+        >
+          ZZirit
+        </Typography>
+
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>
           로그인
         </Typography>
 
@@ -116,7 +125,7 @@ export default function SignIn() {
                     borderColor: "#BDBDBD",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "primary.main",
+                    borderColor: "secondary.main",
                   },
                 },
               }}
@@ -145,7 +154,7 @@ export default function SignIn() {
                     borderColor: "#BDBDBD",
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "primary.main",
+                    borderColor: "secondary.main",
                   },
                 },
               }}
@@ -153,7 +162,7 @@ export default function SignIn() {
           </FormControl>
 
           <FormControlLabel
-            control={<Checkbox color="primary" />}
+            control={<Checkbox color="secondary" />}
             label="로그인 상태 유지"
           />
 
@@ -161,6 +170,7 @@ export default function SignIn() {
             type="submit"
             fullWidth
             variant="contained"
+            color="primary"
             sx={{
               mt: 1,
               py: 1.5,
@@ -177,7 +187,7 @@ export default function SignIn() {
             variant="body2"
             sx={{
               alignSelf: "center",
-              color: "primary.main",
+              color: "secondary.main",
               textDecoration: "none",
               "&:hover": {
                 textDecoration: "underline",
@@ -264,7 +274,7 @@ export default function SignIn() {
             <Link
               href="/sign-up"
               sx={{
-                color: "primary.main",
+                color: "secondary.main",
                 textDecoration: "none",
                 fontWeight: 600,
                 "&:hover": {
