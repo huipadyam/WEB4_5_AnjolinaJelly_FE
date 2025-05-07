@@ -151,6 +151,9 @@ const theme = createTheme({
     MuiInputBase: {
       styleOverrides: {
         // number 타입 input의 화살표를 항상 표시하도록 설정
+        root: {
+          color: "secondary.main",
+        },
         input: {
           "&[type=number]": {
             "-moz-appearance": "textfield", // Firefox에서 기본 화살표 제거
@@ -161,6 +164,13 @@ const theme = createTheme({
               opacity: 1, // 항상 표시되도록 opacity 설정
               pointerEvents: "all", // 클릭 가능하도록 설정
             },
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          color: "secondary.main",
         },
       },
     },

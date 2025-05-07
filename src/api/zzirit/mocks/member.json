@@ -1,0 +1,11 @@
+{
+  "id": 1,
+  "createdAt": "2024-05-01T12:00:00.000Z",
+  "updatedAt": "2024-05-01T12:00:00.000Z",
+  "memberName": "홍길동",
+  "memberEmail": "hong@zzirit.com",
+  "password": "hashedpassword",
+  "role": "ROLE_USER",
+  "memberAddress": "서울특별시 강남구 테헤란로 123",
+  "memberAddressDetail": "101동 202호"
+}
