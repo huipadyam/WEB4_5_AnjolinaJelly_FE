@@ -1,0 +1,65 @@
+[
+  {
+    "orderDate": "2024-06-01T10:00:00.000Z",
+    "orderId": 1,
+    "orderNumber": "20240601-0001",
+    "totalPrice": 35000,
+    "orderStatus": "PAID",
+    "items": [
+      {
+        "itemName": "아메리카노",
+        "quantity": 2,
+        "imageUrl": "https://source.unsplash.com/coffee",
+        "totalPrice": 10000
+      },
+      {
+        "itemName": "카페라떼",
+        "quantity": 1,
+        "imageUrl": "https://source.unsplash.com/latte",
+        "totalPrice": 8000
+      },
+      {
+        "itemName": "치즈케이크",
+        "quantity": 1,
+        "imageUrl": "https://source.unsplash.com/cake",
+        "totalPrice": 17000
+      }
+    ]
+  },
+  {
+    "orderDate": "2024-05-20T15:30:00.000Z",
+    "orderId": 2,
+    "orderNumber": "20240520-0002",
+    "totalPrice": 12000,
+    "orderStatus": "COMPLETED",
+    "items": [
+      {
+        "itemName": "아메리카노",
+        "quantity": 1,
+        "imageUrl": "https://source.unsplash.com/coffee",
+        "totalPrice": 5000
+      },
+      {
+        "itemName": "티라미수",
+        "quantity": 1,
+        "imageUrl": "https://source.unsplash.com/tiramisu",
+        "totalPrice": 7000
+      }
+    ]
+  },
+  {
+    "orderDate": "2024-05-10T09:10:00.000Z",
+    "orderId": 3,
+    "orderNumber": "20240510-0003",
+    "totalPrice": 5000,
+    "orderStatus": "CANCELLED",
+    "items": [
+      {
+        "itemName": "아메리카노",
+        "quantity": 1,
+        "imageUrl": "https://source.unsplash.com/coffee",
+        "totalPrice": 5000
+      }
+    ]
+  }
+]

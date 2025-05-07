@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import { Google as GoogleIcon } from "@mui/icons-material";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 // 폼 유효성 검사 스키마 정의
 const loginSchema = z.object({
@@ -37,6 +38,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function SignIn() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const {
     register,
@@ -51,6 +53,7 @@ export default function SignIn() {
     try {
       // TODO: 로그인 API 호출 로직 구현
       console.log(data);
+      router.push("/");
     } catch (error) {
       console.error(error);
     } finally {

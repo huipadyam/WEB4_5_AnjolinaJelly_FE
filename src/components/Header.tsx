@@ -1,18 +1,50 @@
-import React from "react";
+"use client";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
-  Typography,
   Box,
   IconButton,
   TextField,
   InputAdornment,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const router = useRouter();
+
+  // 드롭다운 열기
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  // 드롭다운 닫기
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  // 마이페이지 이동
+  const handleMyPage = () => {
+    handleClose();
+    router.push("/my-page");
+  };
+  // 로그아웃 처리
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+    }
+    handleClose();
+    router.push("/sign-in");
+  };
+
   return (
     <AppBar
       position="static"
@@ -27,12 +59,15 @@ export default function Header() {
     >
       <Toolbar sx={{ justifyContent: "space-between", minHeight: 64 }}>
         {/* 좌측: 로고 텍스트 */}
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 700, color: "secondary.main", letterSpacing: 1 }}
-        >
-          Zzirit
-        </Typography>
+        <Link href="/">
+          <Image
+            src="/zzirit_logo_alpha_crop.png"
+            alt="Zzirit 로고"
+            width={72}
+            height={36}
+            objectFit="cover"
+          />
+        </Link>
 
         {/* 가운데: 검색 인풋 + 검색 버튼 */}
         <Box sx={{ flex: 1, mx: 4, maxWidth: 480 }}>
@@ -59,14 +94,26 @@ export default function Header() {
           />
         </Box>
 
-        {/* 우측: 장바구니, 마이페이지 */}
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton color="secondary">
-            <ShoppingCartIcon />
-          </IconButton>
-          <IconButton color="secondary">
+          <Link href="/cart">
+            <IconButton color="secondary">
+              <ShoppingCartIcon />
+            </IconButton>
+          </Link>
+          {/* 마이페이지 드롭다운 */}
+          <IconButton color="secondary" onClick={handleMenu}>
             <AccountCircleIcon />
           </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem onClick={handleMyPage}>내 정보</MenuItem>
+            <MenuItem onClick={handleLogout}>로그아웃</MenuItem>
+          </Menu>
         </Box>
       </Toolbar>
     </AppBar>
