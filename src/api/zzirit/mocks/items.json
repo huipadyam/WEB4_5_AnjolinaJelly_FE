@@ -12,8 +12,8 @@
         "brand": "삼성",
         "quantity": 50,
         "price": 1200000,
-        "timeDealStatus": "NONE",
-        "endTimeDeal": null
+        "timeDealStatus": "TIME_DEAL",
+        "endTimeDeal": "2025-05-09T12:00:00.000Z"
       },
       {
         "itemId": 2,

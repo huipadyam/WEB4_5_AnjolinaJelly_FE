@@ -148,6 +148,22 @@ const theme = createTheme({
         },
       },
     },
+    MuiInputBase: {
+      styleOverrides: {
+        // number 타입 input의 화살표를 항상 표시하도록 설정
+        input: {
+          "&[type=number]": {
+            "-moz-appearance": "textfield", // Firefox에서 기본 화살표 제거
+          },
+          "&[type=number]::-webkit-inner-spin-button, &[type=number]::-webkit-outer-spin-button":
+            {
+              "-webkit-appearance": "inner-spin-button", // 기본 화살표 스타일 적용
+              opacity: 1, // 항상 표시되도록 opacity 설정
+              pointerEvents: "all", // 클릭 가능하도록 설정
+            },
+        },
+      },
+    },
   },
 });
 
