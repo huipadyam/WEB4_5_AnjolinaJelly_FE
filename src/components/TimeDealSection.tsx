@@ -96,16 +96,18 @@ export default function TimeDealSection() {
         position: "relative",
       }}
     >
-      <Typography variant="h5" fontWeight={700} color="secondary.main" mb={2}>
-        타임딜 상품
-      </Typography>
-      <Button
-        variant="text"
-        sx={{ fontWeight: 600, color: "secondary.main", mb: 2 }}
-        onClick={() => router.push("/products/time-deal")}
-      >
-        전체보기
-      </Button>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" fontWeight={700} color="secondary.main" mb={2}>
+          타임딜 상품
+        </Typography>
+        <Button
+          variant="text"
+          sx={{ fontWeight: 600, color: "secondary.main", mb: 2 }}
+          onClick={() => router.push("/")}
+        >
+          전체보기
+        </Button>
+      </Box>
       <Box
         sx={{
           position: "relative",
