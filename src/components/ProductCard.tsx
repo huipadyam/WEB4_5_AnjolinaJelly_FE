@@ -42,7 +42,7 @@ export default function ProductCard({
         <Typography
           variant="body1"
           fontWeight={700}
-          color="primary.main"
+          color="secondary.main"
           mt={1}
         >
           {price.toLocaleString()}원

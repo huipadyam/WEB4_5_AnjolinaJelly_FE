@@ -52,7 +52,7 @@ export default function TimeDealProductCardInGrid({
           </Typography>
           <Typography
             variant="body2"
-            color="primary"
+            color="secondary"
             fontWeight={700}
             sx={{ ml: "auto", bgcolor: "#E3F2FD", px: 1, borderRadius: 1 }}
           >
@@ -66,7 +66,7 @@ export default function TimeDealProductCardInGrid({
           {category}
         </Typography>
         <Stack direction="row" alignItems="baseline" spacing={1} mt={1}>
-          <Typography variant="body1" fontWeight={700} color="primary.main">
+          <Typography variant="body1" fontWeight={700} color="secondary.main">
             {dealPrice.toLocaleString()}원
           </Typography>
           <Typography

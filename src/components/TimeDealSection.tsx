@@ -168,7 +168,7 @@ function TimeDealCard({
           </Typography>
           <Typography
             variant="body2"
-            color="primary"
+            color="secondary"
             fontWeight={700}
             sx={{
               ml: "auto",
@@ -187,7 +187,7 @@ function TimeDealCard({
           {product.type}
         </Typography>
         <Stack direction="row" alignItems="baseline" spacing={1} mt={1}>
-          <Typography variant="body1" fontWeight={700} color="primary.main">
+          <Typography variant="body1" fontWeight={700} color="secondary.main">
             {product.price?.toLocaleString()}원
           </Typography>
           <Typography
@@ -223,12 +223,12 @@ export default function TimeDealSection() {
         justifyContent="space-between"
         mb={2}
       >
-        <Typography variant="h5" fontWeight={700} color="primary.main">
+        <Typography variant="h5" fontWeight={700} color="secondary.main">
           타임딜 상품
         </Typography>
         <Button
           variant="text"
-          sx={{ fontWeight: 600, color: "primary.main" }}
+          sx={{ fontWeight: 600, color: "secondary.main" }}
           onClick={() => router.push("/products/time-deal")}
         >
           전체보기
@@ -246,6 +246,7 @@ export default function TimeDealSection() {
       >
         <Button
           className="swiper-button-prev custom-swiper-nav"
+          color="secondary"
           sx={{
             position: "absolute",
             left: -24,
@@ -277,6 +278,7 @@ export default function TimeDealSection() {
         </Swiper>
         <Button
           className="swiper-button-next custom-swiper-nav"
+          color="secondary"
           sx={{
             position: "absolute",
             right: -24,

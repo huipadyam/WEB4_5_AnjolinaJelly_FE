@@ -29,7 +29,7 @@ export default function Header() {
         {/* 좌측: 로고 텍스트 */}
         <Typography
           variant="h5"
-          sx={{ fontWeight: 700, color: "primary.main", letterSpacing: 1 }}
+          sx={{ fontWeight: 700, color: "secondary.main", letterSpacing: 1 }}
         >
           Zzirit
         </Typography>
@@ -50,7 +50,7 @@ export default function Header() {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton edge="end" color="primary">
+                  <IconButton edge="end" color="secondary">
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>
@@ -61,10 +61,10 @@ export default function Header() {
 
         {/* 우측: 장바구니, 마이페이지 */}
         <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton color="primary">
+          <IconButton color="secondary">
             <ShoppingCartIcon />
           </IconButton>
-          <IconButton color="primary">
+          <IconButton color="secondary">
             <AccountCircleIcon />
           </IconButton>
         </Box>

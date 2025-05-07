@@ -11,14 +11,14 @@ const theme = createTheme({
   palette: {
     mode: "light",
     primary: {
-      main: "#2C3E50", // 신뢰감을 주는 딥 블루
-      light: "#34495E",
-      dark: "#1A252F",
+      main: "#FFBC11",
+      light: "#FFD54F",
+      dark: "#FFA000",
     },
     secondary: {
-      main: "#F1396D",
-      light: "#F46D94",
-      dark: "#D91E56",
+      main: "#1D2B3A",
+      light: "#1A237E",
+      dark: "#050A14",
     },
     background: {
       default: "#FFFFFF",
