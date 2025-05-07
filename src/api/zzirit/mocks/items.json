@@ -6,274 +6,304 @@
   "result": {
     "content": [
       {
-        "id": 1,
+        "itemId": 1,
         "name": "삼성 갤럭시북 프로",
-        "imageUrl": "https://images.unsplash.com/photo-1661961110372-8a7682543120",
-        "stockQuantity": 50,
         "type": "노트북",
         "brand": "삼성",
-        "price": 1200000
+        "quantity": 50,
+        "price": 1200000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 2,
+        "itemId": 2,
         "name": "LG 그램 울트라라이트",
-        "imageUrl": "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed",
-        "stockQuantity": 100,
         "type": "노트북",
         "brand": "LG",
-        "price": 1450000
+        "quantity": 100,
+        "price": 1450000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 3,
+        "itemId": 3,
         "name": "애플 맥북 프로 M3",
-        "imageUrl": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8",
-        "stockQuantity": 30,
         "type": "노트북",
         "brand": "애플",
-        "price": 2500000
+        "quantity": 30,
+        "price": 2500000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 4,
+        "itemId": 4,
         "name": "삼성 비스포크 냉장고",
-        "imageUrl": "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30",
-        "stockQuantity": 25,
         "type": "냉장고",
         "brand": "삼성",
-        "price": 1850000
+        "quantity": 25,
+        "price": 1850000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 5,
+        "itemId": 5,
         "name": "LG 디오스 양문형 냉장고",
-        "imageUrl": "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5",
-        "stockQuantity": 18,
         "type": "냉장고",
         "brand": "LG",
-        "price": 2100000
+        "quantity": 18,
+        "price": 2100000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 6,
+        "itemId": 6,
         "name": "삼성 갤럭시 S23 울트라",
-        "imageUrl": "https://images.unsplash.com/photo-1598327105666-5b89351aff97",
-        "stockQuantity": 200,
         "type": "스마트폰",
         "brand": "삼성",
-        "price": 1250000
+        "quantity": 200,
+        "price": 1250000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 7,
+        "itemId": 7,
         "name": "애플 아이폰 15 프로",
-        "imageUrl": "https://images.unsplash.com/photo-1591337676887-a217a6970a8a",
-        "stockQuantity": 150,
         "type": "스마트폰",
         "brand": "애플",
-        "price": 1550000
+        "quantity": 150,
+        "price": 1550000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 8,
+        "itemId": 8,
         "name": "소니 알파 A7 IV",
-        "imageUrl": "https://images.unsplash.com/photo-1516724562728-afc824a36e84",
-        "stockQuantity": 45,
         "type": "카메라",
         "brand": "소니",
-        "price": 2800000
+        "quantity": 45,
+        "price": 2800000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 9,
+        "itemId": 9,
         "name": "캐논 EOS R5",
-        "imageUrl": "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac",
-        "stockQuantity": 35,
         "type": "카메라",
         "brand": "캐논",
-        "price": 3200000
+        "quantity": 35,
+        "price": 3200000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 10,
+        "itemId": 10,
         "name": "애플 아이패드 프로",
-        "imageUrl": "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0",
-        "stockQuantity": 85,
         "type": "태블릿 PC",
         "brand": "애플",
-        "price": 1200000
+        "quantity": 85,
+        "price": 1200000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 11,
+        "itemId": 11,
         "name": "레노버 씽크패드 X1",
-        "imageUrl": "https://images.unsplash.com/photo-1593642702909-dec73df255d7",
-        "stockQuantity": 75,
         "type": "노트북",
         "brand": "레노버",
-        "price": 1800000
+        "quantity": 75,
+        "price": 1800000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 12,
+        "itemId": 12,
         "name": "델 XPS 13",
-        "imageUrl": "https://images.unsplash.com/photo-1531297484001-80022131f5a1",
-        "stockQuantity": 45,
         "type": "노트북",
         "brand": "델",
-        "price": 1900000
+        "quantity": 45,
+        "price": 1900000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 13,
+        "itemId": 13,
         "name": "ASUS 젠북 15",
-        "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853",
-        "stockQuantity": 60,
         "type": "노트북",
         "brand": "ASUS",
-        "price": 1650000
+        "quantity": 60,
+        "price": 1650000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 14,
+        "itemId": 14,
         "name": "HP 스펙터 x360",
-        "imageUrl": "https://images.unsplash.com/photo-1602080858428-57174f9431cf",
-        "stockQuantity": 25,
         "type": "노트북",
         "brand": "HP",
-        "price": 1750000
+        "quantity": 25,
+        "price": 1750000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 15,
+        "itemId": 15,
         "name": "MSI 게이밍 노트북 GE76",
-        "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302",
-        "stockQuantity": 40,
         "type": "게이밍 노트북",
         "brand": "MSI",
-        "price": 2200000
+        "quantity": 40,
+        "price": 2200000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 16,
+        "itemId": 16,
         "name": "에이서 프레데터 헬리오스",
-        "imageUrl": "https://images.unsplash.com/photo-1558864559-ed673ba3610b",
-        "stockQuantity": 35,
         "type": "게이밍 노트북",
         "brand": "에이서",
-        "price": 1950000
+        "quantity": 35,
+        "price": 1950000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 17,
+        "itemId": 17,
         "name": "마이크로소프트 서피스 랩톱 5",
-        "imageUrl": "https://images.unsplash.com/photo-1494173853739-c21f58b16055",
-        "stockQuantity": 55,
         "type": "노트북",
         "brand": "마이크로소프트",
-        "price": 1850000
+        "quantity": 55,
+        "price": 1850000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 18,
+        "itemId": 18,
         "name": "삼성 갤럭시북 오디세이",
-        "imageUrl": "https://images.unsplash.com/photo-1603302576837-37561b2e2302",
-        "stockQuantity": 20,
         "type": "게이밍 노트북",
         "brand": "삼성",
-        "price": 1650000
+        "quantity": 20,
+        "price": 1650000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 19,
+        "itemId": 19,
         "name": "레이저 블레이드 15",
-        "imageUrl": "https://images.unsplash.com/photo-1593642632823-8f785ba67e45",
-        "stockQuantity": 15,
         "type": "게이밍 노트북",
         "brand": "레이저",
-        "price": 2700000
+        "quantity": 15,
+        "price": 2700000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 20,
+        "itemId": 20,
         "name": "LG 울트라 PC",
-        "imageUrl": "https://images.unsplash.com/photo-1542393545-10f5cde2c810",
-        "stockQuantity": 65,
         "type": "노트북",
         "brand": "LG",
-        "price": 990000
+        "quantity": 65,
+        "price": 990000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 21,
+        "itemId": 21,
         "name": "기가바이트 AERO 15",
-        "imageUrl": "https://images.unsplash.com/photo-1525547719571-a2d4ac8945e2",
-        "stockQuantity": 30,
         "type": "게이밍 노트북",
         "brand": "기가바이트",
-        "price": 2250000
+        "quantity": 30,
+        "price": 2250000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 22,
+        "itemId": 22,
         "name": "한성컴퓨터 올데이롱 TFX5470H",
-        "imageUrl": "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d",
-        "stockQuantity": 50,
         "type": "노트북",
         "brand": "한성컴퓨터",
-        "price": 1100000
+        "quantity": 50,
+        "price": 1100000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 23,
+        "itemId": 23,
         "name": "샤오미 미밴드 7",
-        "imageUrl": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6",
-        "stockQuantity": 120,
         "type": "스마트워치",
         "brand": "샤오미",
-        "price": 59000
+        "quantity": 120,
+        "price": 59000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 24,
+        "itemId": 24,
         "name": "애플 워치 시리즈 9",
-        "imageUrl": "https://images.unsplash.com/photo-1546868871-7041f2a55e12",
-        "stockQuantity": 80,
         "type": "스마트워치",
         "brand": "애플",
-        "price": 599000
+        "quantity": 80,
+        "price": 599000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 25,
+        "itemId": 25,
         "name": "삼성 갤럭시 워치 6",
-        "imageUrl": "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1",
-        "stockQuantity": 65,
         "type": "스마트워치",
         "brand": "삼성",
-        "price": 399000
+        "quantity": 65,
+        "price": 399000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 26,
+        "itemId": 26,
         "name": "LG 올레드 C3 TV 65인치",
-        "imageUrl": "https://images.unsplash.com/photo-1593784991095-a205069470b6",
-        "stockQuantity": 22,
         "type": "TV",
         "brand": "LG",
-        "price": 2890000
+        "quantity": 22,
+        "price": 2890000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 27,
+        "itemId": 27,
         "name": "삼성 Neo QLED TV 55인치",
-        "imageUrl": "https://images.unsplash.com/photo-1577979749830-f1d742b96791",
-        "stockQuantity": 28,
         "type": "TV",
         "brand": "삼성",
-        "price": 2490000
+        "quantity": 28,
+        "price": 2490000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 28,
+        "itemId": 28,
         "name": "BOSE 사운드바 900",
-        "imageUrl": "https://images.unsplash.com/photo-1545454675-3531b543be5d",
-        "stockQuantity": 15,
         "type": "오디오",
         "brand": "BOSE",
-        "price": 1190000
+        "quantity": 15,
+        "price": 1190000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 29,
+        "itemId": 29,
         "name": "소니 WH-1000XM5 헤드폰",
-        "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb",
-        "stockQuantity": 45,
         "type": "오디오",
         "brand": "소니",
-        "price": 429000
+        "quantity": 45,
+        "price": 429000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       },
       {
-        "id": 30,
+        "itemId": 30,
         "name": "다이슨 에어랩 멀티스타일러",
-        "imageUrl": "https://images.unsplash.com/photo-1590439471364-192aa70c0b53",
-        "stockQuantity": 10,
         "type": "가전",
         "brand": "다이슨",
-        "price": 699000
+        "quantity": 10,
+        "price": 699000,
+        "timeDealStatus": "NONE",
+        "endTimeDeal": null
       }
     ]
   }

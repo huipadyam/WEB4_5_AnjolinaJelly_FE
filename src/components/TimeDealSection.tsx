@@ -1,17 +1,9 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Button,
-  Card,
-  CardContent,
-  Stack,
-} from "@mui/material";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import React from "react";
+import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { ItemResponse } from "../api/zzirit/models/ItemResponse";
-import ImageWithFallback from "./ImageWithFallback";
+import ItemCard from "./ItemCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
@@ -90,119 +82,6 @@ const timeDealProducts: (ItemResponse & {
   },
 ];
 
-function getTimeLeftString(endTimeDeal: Date): string {
-  const now = new Date();
-  const diff = Math.max(0, endTimeDeal.getTime() - now.getTime());
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
-
-// 남은 시간을 클라이언트에서만 갱신하는 커스텀 훅
-function useTimeLeft(endTimeDeal: Date) {
-  const [timeLeft, setTimeLeft] = useState(getTimeLeftString(endTimeDeal));
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTimeLeft(getTimeLeftString(endTimeDeal));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [endTimeDeal]);
-
-  return timeLeft;
-}
-
-// 개별 타임딜 카드 컴포넌트
-function TimeDealCard({
-  product,
-}: {
-  product: (typeof timeDealProducts)[number];
-}) {
-  const [mounted, setMounted] = useState(false);
-  const timeLeft = useTimeLeft(product.endTimeDeal!);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  return (
-    <Card
-      key={product.itemId}
-      sx={{
-        minWidth: 0,
-        flex: 1,
-        borderRadius: 3,
-        boxShadow: "0 2px 8px 0 rgba(80, 100, 120, 0.08)",
-        display: "flex",
-        flexDirection: "column",
-        overflow: "hidden",
-        background: "#fff",
-      }}
-    >
-      <ImageWithFallback
-        src={product.image}
-        alt={product.name ?? ""}
-        fallbackKey={product.image}
-        style={{ height: 140, objectFit: "cover" }}
-      />
-      <CardContent
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          gap: 1,
-        }}
-      >
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <AccessTimeIcon color="error" fontSize="small" />
-          <Typography
-            variant="body2"
-            color="error"
-            fontWeight={700}
-            sx={{ width: 56, display: "inline-block" }}
-          >
-            {mounted ? timeLeft : null}
-          </Typography>
-          <Typography
-            variant="body2"
-            color="secondary"
-            fontWeight={700}
-            sx={{
-              ml: "auto",
-              bgcolor: "#E3F2FD",
-              px: 1,
-              borderRadius: 1,
-            }}
-          >
-            {product.discount}% 할인
-          </Typography>
-        </Stack>
-        <Typography variant="subtitle1" fontWeight={600} mt={1} noWrap>
-          {product.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {product.type}
-        </Typography>
-        <Stack direction="row" alignItems="baseline" spacing={1} mt={1}>
-          <Typography variant="body1" fontWeight={700} color="secondary.main">
-            {product.price?.toLocaleString()}원
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.disabled"
-            sx={{ textDecoration: "line-through" }}
-          >
-            {product.originalPrice?.toLocaleString()}원
-          </Typography>
-        </Stack>
-      </CardContent>
-    </Card>
-  );
-}
-
 export default function TimeDealSection() {
   const router = useRouter();
 
@@ -217,24 +96,16 @@ export default function TimeDealSection() {
         position: "relative",
       }}
     >
-      <Stack
-        direction="row"
-        alignItems="center"
-        justifyContent="space-between"
-        mb={2}
+      <Typography variant="h5" fontWeight={700} color="secondary.main" mb={2}>
+        타임딜 상품
+      </Typography>
+      <Button
+        variant="text"
+        sx={{ fontWeight: 600, color: "secondary.main", mb: 2 }}
+        onClick={() => router.push("/products/time-deal")}
       >
-        <Typography variant="h5" fontWeight={700} color="secondary.main">
-          타임딜 상품
-        </Typography>
-        <Button
-          variant="text"
-          sx={{ fontWeight: 600, color: "secondary.main" }}
-          onClick={() => router.push("/products/time-deal")}
-        >
-          전체보기
-        </Button>
-      </Stack>
-
+        전체보기
+      </Button>
       <Box
         sx={{
           position: "relative",
@@ -253,7 +124,6 @@ export default function TimeDealSection() {
             zIndex: 10,
           }}
         ></Button>
-
         <Swiper
           modules={[Navigation, Autoplay]}
           slidesPerView={3}
@@ -272,7 +142,7 @@ export default function TimeDealSection() {
         >
           {timeDealProducts.map((product) => (
             <SwiperSlide key={product.itemId}>
-              <TimeDealCard product={product} />
+              <ItemCard {...product} />
             </SwiperSlide>
           ))}
         </Swiper>

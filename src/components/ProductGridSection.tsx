@@ -1,20 +1,8 @@
 import React from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import ProductCard from "./ProductCard";
-import TimeDealProductCardInGrid from "./TimeDealProductCardInGrid";
+import ItemCard from "./ItemCard";
 import { ItemResponse } from "../api/zzirit/models/ItemResponse";
-
-function getTimeLeftString(endTimeDeal: Date): string {
-  const now = new Date();
-  const diff = Math.max(0, endTimeDeal.getTime() - now.getTime());
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-  return `${hours.toString().padStart(2, "0")}:${minutes
-    .toString()
-    .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
-}
 
 // 더미 데이터
 const products: (ItemResponse & {
@@ -128,36 +116,11 @@ export default function ProductGridSection() {
       }}
     >
       <Grid container spacing={3} justifyContent="flex-start">
-        {products.map((product) => {
-          if (product.timeDealStatus === "TIME_DEAL") {
-            return (
-              <Grid key={product.itemId} size={4}>
-                <TimeDealProductCardInGrid
-                  image={product.image}
-                  name={product.name ?? ""}
-                  category={product.type ?? ""}
-                  originalPrice={product.originalPrice ?? 0}
-                  dealPrice={product.price ?? 0}
-                  discount={product.discount ?? 0}
-                  timeLeft={getTimeLeftString(
-                    product.endTimeDeal ?? new Date()
-                  )}
-                />
-              </Grid>
-            );
-          } else {
-            return (
-              <Grid key={product.itemId} size={4}>
-                <ProductCard
-                  image={product.image}
-                  name={product.name ?? ""}
-                  category={product.type ?? ""}
-                  price={product.price ?? 0}
-                />
-              </Grid>
-            );
-          }
-        })}
+        {products.map((product) => (
+          <Grid key={product.itemId} size={4}>
+            <ItemCard {...product} />
+          </Grid>
+        ))}
       </Grid>
     </Box>
   );

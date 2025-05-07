@@ -123,6 +123,31 @@ const theme = createTheme({
         },
       },
     },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          color: "text.secondary",
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          padding: "6px",
+        },
+        paperWidthSm: {
+          maxWidth: 600,
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          padding: "16px",
+          paddingTop: "0px",
+        },
+      },
+    },
   },
 });
 
