@@ -185,7 +185,7 @@ export default function SignIn() {
             {isLoading ? "로그인 중..." : "로그인"}
           </Button>
 
-          <Link
+          {/* <Link
             href="#"
             variant="body2"
             sx={{
@@ -198,7 +198,7 @@ export default function SignIn() {
             }}
           >
             비밀번호를 잊으셨나요?
-          </Link>
+          </Link> */}
         </Box>
 
         <Divider sx={{ my: 2 }}>또는</Divider>
@@ -209,6 +209,7 @@ export default function SignIn() {
             variant="outlined"
             startIcon={<GoogleIcon />}
             onClick={() => {
+              router.push("/social-sign-up");
               // TODO: 구글 로그인 구현
             }}
             sx={{
@@ -233,6 +234,7 @@ export default function SignIn() {
               <Image src="/kakao-logo.png" alt="Kakao" width={20} height={20} />
             }
             onClick={() => {
+              router.push("/social-sign-up");
               // TODO: 카카오 로그인 구현
             }}
             sx={{
@@ -255,6 +257,7 @@ export default function SignIn() {
               <Image src="/naver-logo.png" alt="Naver" width={20} height={20} />
             }
             onClick={() => {
+              router.push("/social-sign-up");
               // TODO: 네이버 로그인 구현
             }}
             sx={{

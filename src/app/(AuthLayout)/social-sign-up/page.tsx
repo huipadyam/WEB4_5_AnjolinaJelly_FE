@@ -13,6 +13,7 @@ import {
   FormControl,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const signUpSchema = z
   .object({
@@ -54,7 +55,7 @@ declare global {
 
 export default function SignUp() {
   const [address, setAddress] = useState("");
-
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -111,6 +112,7 @@ export default function SignUp() {
     const submitData = { ...data, address };
     console.log("회원가입 데이터:", submitData);
     alert("회원가입이 완료되었습니다! (콘솔 확인)");
+    router.push("/");
   };
 
   return (

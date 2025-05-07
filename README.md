@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Anjolina Jelly FE
 
-## Getting Started
+## 프로젝트 실행 방법
 
-First, run the development server:
+1. 의존성 설치
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. 개발 서버 실행
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 주의사항
 
-To learn more about Next.js, take a look at the following resources:
+- **현재 이 프로젝트는 서버와의 연결이 전혀 없으며, 모든 데이터는 목데이터로만 동작합니다.**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 주요 사용 흐름
 
-## Deploy on Vercel
+1. **첫 시작 시 `/sign-in` 페이지로 이동하는 것을 권장합니다.**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   - 회원가입 버튼 또는 소셜 로그인 버튼을 통해 회원가입 페이지(또는 소셜 추가정보 입력 페이지)로 이동할 수 있습니다.
+   - 정보를 입력한 뒤 버튼을 누르면 메인 페이지로 이동합니다.
+   - 로그인 페이지에서 정보를 입력 후 로그인 버튼을 눌러도 메인 페이지로 이동합니다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+2. **메인 페이지**
+
+   - 상품을 클릭하면 상품 상세 페이지로 이동합니다.
+   - 상품 상세 페이지에서 "장바구니 담기"를 누르면 다이얼로그가 뜨며, 계속 쇼핑할지 또는 페이지 이동할지 선택할 수 있습니다.
+   - "바로 구매하기"를 누르면 바로 주문 페이지로 이동합니다.
+
+3. **헤더의 사용자 아이콘**
+   - 클릭 시 드롭다운이 나타나며, "내 정보"를 선택하면 내 정보 페이지로 이동합니다.
+   - 내 정보 페이지에서는 내 정보와 주문 내역을 확인할 수 있습니다.
+
+---
+
+> 이 프로젝트는 Next.js 15, TypeScript, MUI를 기반으로 합니다.
