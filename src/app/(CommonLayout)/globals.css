@@ -81,3 +81,7 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: inherit !important;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
 }
+.custom-swiper-nav:after {
+  font-size: 16px !important;
+  color: "#999999";
+}

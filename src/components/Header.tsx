@@ -44,7 +44,7 @@ export default function Header() {
               backgroundColor: "#F8F9FA",
               borderRadius: 2,
               "& .MuiOutlinedInput-root": {
-                pr: 0,
+                pr: 1,
               },
             }}
             InputProps={{

@@ -4,17 +4,18 @@ import {
   Box,
   Typography,
   Button,
-  IconButton,
   Card,
   CardContent,
   Stack,
 } from "@mui/material";
-import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import { useRouter } from "next/navigation";
 import { ItemResponse } from "../api/zzirit/models/ItemResponse";
 import ImageWithFallback from "./ImageWithFallback";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Autoplay } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 // 더미 데이터
 const timeDealProducts: (ItemResponse & {
@@ -89,8 +90,6 @@ const timeDealProducts: (ItemResponse & {
   },
 ];
 
-const ITEMS_PER_SLIDE = 3;
-
 function getTimeLeftString(endTimeDeal: Date): string {
   const now = new Date();
   const diff = Math.max(0, endTimeDeal.getTime() - now.getTime());
@@ -159,7 +158,12 @@ function TimeDealCard({
       >
         <Stack direction="row" alignItems="center" spacing={1}>
           <AccessTimeIcon color="error" fontSize="small" />
-          <Typography variant="body2" color="error" fontWeight={700}>
+          <Typography
+            variant="body2"
+            color="error"
+            fontWeight={700}
+            sx={{ width: 56, display: "inline-block" }}
+          >
             {mounted ? timeLeft : null}
           </Typography>
           <Typography
@@ -200,47 +204,15 @@ function TimeDealCard({
 }
 
 export default function TimeDealSection() {
-  const [slide, setSlide] = useState(0);
   const router = useRouter();
-
-  // 4초마다 자동 슬라이드
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSlide(
-        (prev) =>
-          (prev + 1) % Math.ceil(timeDealProducts.length / ITEMS_PER_SLIDE)
-      );
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const handlePrev = () => {
-    setSlide(
-      (prev) =>
-        (prev - 1 + Math.ceil(timeDealProducts.length / ITEMS_PER_SLIDE)) %
-        Math.ceil(timeDealProducts.length / ITEMS_PER_SLIDE)
-    );
-  };
-  const handleNext = () => {
-    setSlide(
-      (prev) =>
-        (prev + 1) % Math.ceil(timeDealProducts.length / ITEMS_PER_SLIDE)
-    );
-  };
-
-  const startIdx = slide * ITEMS_PER_SLIDE;
-  const visibleProducts = timeDealProducts.slice(
-    startIdx,
-    startIdx + ITEMS_PER_SLIDE
-  );
 
   return (
     <Box
       sx={{
         background: "linear-gradient(90deg, #F5F7FA 0%, #B8C6DB 100%)",
-        borderRadius: 4,
         p: { xs: 2, sm: 4 },
-        my: 4,
+        pt: { xs: 2, sm: 2 },
+        mb: 4,
         boxShadow: "0 4px 24px 0 rgba(80, 100, 120, 0.06)",
         position: "relative",
       }}
@@ -262,18 +234,55 @@ export default function TimeDealSection() {
           전체보기
         </Button>
       </Stack>
-      <Box sx={{ display: "flex", alignItems: "center", position: "relative" }}>
-        <IconButton onClick={handlePrev} sx={{ mr: 1 }}>
-          <ArrowBackIosNewIcon />
-        </IconButton>
-        <Box sx={{ display: "flex", gap: 2, flex: 1 }}>
-          {visibleProducts.map((product) => (
-            <TimeDealCard key={product.itemId} product={product} />
+
+      <Box
+        sx={{
+          position: "relative",
+          px: 4,
+          display: "flex",
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <Button
+          className="swiper-button-prev custom-swiper-nav"
+          sx={{
+            position: "absolute",
+            left: -24,
+            zIndex: 10,
+          }}
+        ></Button>
+
+        <Swiper
+          modules={[Navigation, Autoplay]}
+          slidesPerView={3}
+          spaceBetween={16}
+          navigation={{
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+          }}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          style={{ padding: "8px 0" }}
+          breakpoints={{
+            0: { slidesPerView: 1 },
+            600: { slidesPerView: 2 },
+            900: { slidesPerView: 3 },
+          }}
+        >
+          {timeDealProducts.map((product) => (
+            <SwiperSlide key={product.itemId}>
+              <TimeDealCard product={product} />
+            </SwiperSlide>
           ))}
-        </Box>
-        <IconButton onClick={handleNext} sx={{ ml: 1 }}>
-          <ArrowForwardIosIcon />
-        </IconButton>
+        </Swiper>
+        <Button
+          className="swiper-button-next custom-swiper-nav"
+          sx={{
+            position: "absolute",
+            right: -24,
+            zIndex: 10,
+          }}
+        ></Button>
       </Box>
     </Box>
   );

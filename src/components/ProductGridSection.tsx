@@ -119,12 +119,19 @@ export default function ProductGridSection() {
   // useIntersectionObserver로 스크롤 하단 감지 후 fetchNextPage()
 
   return (
-    <Box sx={{ my: 6 }}>
-      <Grid container spacing={3}>
+    <Box
+      sx={{
+        my: 6,
+        display: "flex",
+        alignItems: "center",
+        px: 6,
+      }}
+    >
+      <Grid container spacing={3} justifyContent="flex-start">
         {products.map((product) => {
           if (product.timeDealStatus === "TIME_DEAL") {
             return (
-              <Grid key={product.itemId}>
+              <Grid key={product.itemId} size={4}>
                 <TimeDealProductCardInGrid
                   image={product.image}
                   name={product.name ?? ""}
@@ -140,7 +147,7 @@ export default function ProductGridSection() {
             );
           } else {
             return (
-              <Grid key={product.itemId}>
+              <Grid key={product.itemId} size={4}>
                 <ProductCard
                   image={product.image}
                   name={product.name ?? ""}

@@ -42,7 +42,12 @@ export default function TimeDealProductCardInGrid({
       <CardContent>
         <Stack direction="row" alignItems="center" spacing={1}>
           <AccessTimeIcon color="error" fontSize="small" />
-          <Typography variant="body2" color="error" fontWeight={700}>
+          <Typography
+            variant="body2"
+            color="error"
+            fontWeight={700}
+            sx={{ width: 56, display: "inline-block" }}
+          >
             {timeLeft}
           </Typography>
           <Typography
