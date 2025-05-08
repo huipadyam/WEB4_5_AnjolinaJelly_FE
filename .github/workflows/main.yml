@@ -4,7 +4,7 @@ name: Sync and merge upstream repository
 on:
   workflow_dispatch:
   schedule: 
-  - cron: "0 0 * * *" # 매일 한국 시간 오전 9시에 실행
+  - cron: "0 * * * *" # 매시 정각(UTC)마다 실행됨 (한국 시간 기준 매시 9분 전쯤)
 
 jobs:
   merge:
