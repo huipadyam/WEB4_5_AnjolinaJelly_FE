@@ -1,0 +1,27 @@
+# org레포지토리에서 fork해온 현 레포지토리를 최신상태로 fetch and merge하는 스크립트입니다.
+
+name: Sync and merge upstream repository
+on:
+  workflow_dispatch:
+  schedule: 
+  - cron: "0 0 * * *" # 매일 한국 시간 오전 9시에 실행
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 전체 커밋 이력 가져오기
+      - name: Merge upstream
+        run: |
+          git config --global user.name 'huipadyam'
+          git config --global user.email 'kces0822@gmail.com'
+          
+          git remote | grep upstream || git remote add upstream https://github.com/prgrms-web-devcourse-final-project/WEB4_5_AnjolinaJelly_FE.git
+          git fetch upstream
+          
+          git checkout main
+          git merge -Xtheirs upstream/main
+          git push origin main
+          # etc
