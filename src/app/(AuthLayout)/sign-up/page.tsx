@@ -58,17 +58,19 @@ export default function SignUp() {
   // 이메일 인증 관련 상태
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [inputCode, setInputCode] = useState("");
   const [timer, setTimer] = useState(0); // 초 단위
   const [canResend, setCanResend] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false); // API 로딩 상태
+  const [inputCode, setInputCode] = useState("");
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
+    setError,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
@@ -87,22 +89,30 @@ export default function SignUp() {
     };
   }, [timer, isEmailSent, isEmailVerified]);
 
-  // 인증번호 발송 함수 (가짜)
-  const handleSendCode = () => {
-    // 실제로는 이메일로 인증번호 발송 API 호출
-    client.auth.sendEmailVerificationCode({
-      emailAuthDTO: {
-        email: "test@test.com",
-      },
-    });
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setVerificationCode(code);
-    setIsEmailSent(true);
-    setIsEmailVerified(false);
-    setTimer(180); // 3분
-    setCanResend(false);
-    setInputCode("");
-    // alert(`인증번호(테스트): ${code}`); // 개발용
+  // 이메일 인증번호 발송
+  const handleSendCode = async () => {
+    const email = getValues("email");
+    if (!email) {
+      setError("email", { message: "이메일을 입력해주세요." });
+      return;
+    }
+    setLoading(true);
+    try {
+      await client.auth.sendEmailVerificationCode({
+        emailAuthDTO: { email: email },
+      });
+      setIsEmailSent(true);
+      setIsEmailVerified(false);
+      setTimer(180); // 3분
+      setCanResend(false);
+      setInputCode("");
+      alert("인증번호가 이메일로 발송되었습니다.");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert(err?.message || "인증번호 발송에 실패했습니다.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 인증번호 입력 핸들러
@@ -110,12 +120,32 @@ export default function SignUp() {
     setInputCode(e.target.value);
   };
 
-  // 인증번호 확인 함수 (가짜)
-  const handleVerifyCode = () => {
-    if (inputCode === verificationCode) {
+  // 인증번호 확인
+  const handleVerifyCode = async () => {
+    const email = getValues("email");
+    if (!email) {
+      setError("email", { message: "이메일을 입력해주세요." });
+      return;
+    }
+    if (!inputCode) {
+      alert("인증번호를 입력해주세요.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await client.auth.verifyEmailCode({
+        emailAuthVerificationDTO: {
+          email,
+          code: inputCode,
+        },
+      });
       setIsEmailVerified(true);
-    } else {
-      alert("인증번호가 올바르지 않습니다.");
+      alert("이메일 인증이 완료되었습니다.");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert(err?.message || "인증번호가 올바르지 않습니다.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -162,16 +192,30 @@ export default function SignUp() {
   }, []);
 
   // 회원가입 폼 제출 핸들러
-  const onSubmit = (data: SignUpFormData) => {
-    if (!isEmailVerified) {
-      alert("이메일 인증을 완료해주세요.");
-      return;
+  const onSubmit = async (data: SignUpFormData) => {
+    // if (!isEmailVerified) {
+    //   alert("이메일 인증을 완료해주세요.");
+    //   return;
+    // }
+    setLoading(true);
+    try {
+      await client.auth.signup({
+        signupDTO: {
+          memberName: data.name,
+          memberEmail: data.email,
+          memberPassword: data.password,
+          memberAddress: address,
+          memberAddressDetail: data.detailAddress,
+        },
+      });
+      alert("회원가입이 완료되었습니다!");
+      router.push("/");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alert(err?.message || "회원가입에 실패했습니다.");
+    } finally {
+      setLoading(false);
     }
-    // 주소는 address 상태값 사용
-    const submitData = { ...data, address };
-    console.log("회원가입 데이터:", submitData);
-    alert("회원가입이 완료되었습니다! (콘솔 확인)");
-    router.push("/");
   };
 
   return (
@@ -248,7 +292,9 @@ export default function SignUp() {
                 variant="outlined"
                 color="secondary"
                 onClick={handleSendCode}
-                disabled={isEmailSent && !canResend && !isEmailVerified}
+                disabled={
+                  (isEmailSent && !canResend && !isEmailVerified) || loading
+                }
               >
                 {canResend ? "재전송" : "인증번호 발송"}
               </Button>
@@ -270,6 +316,7 @@ export default function SignUp() {
                   variant="contained"
                   color="secondary"
                   onClick={handleVerifyCode}
+                  disabled={loading}
                 >
                   인증확인
                 </Button>

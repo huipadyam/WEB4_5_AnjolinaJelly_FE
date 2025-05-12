@@ -14,6 +14,9 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { client } from "../../../api/zzirit/client";
+import { SocialSignupDTO } from "../../../api/zzirit/models";
+import { alertService } from "@/components/admin/AlertSnackbar";
 
 const signUpSchema = z
   .object({
@@ -107,12 +110,24 @@ export default function SignUp() {
   }, []);
 
   // 회원가입 폼 제출 핸들러
-  const onSubmit = (data: SignUpFormData) => {
-    // 주소는 address 상태값 사용
-    const submitData = { ...data, address };
-    console.log("회원가입 데이터:", submitData);
-    alert("회원가입이 완료되었습니다! (콘솔 확인)");
-    router.push("/");
+  const onSubmit = async (data: SignUpFormData) => {
+    const socialSignupDTO: SocialSignupDTO = {
+      memberName: data.name,
+      memberPassword: data.password,
+      memberAddress: address,
+      memberAddressDetail: data.detailAddress,
+    };
+    try {
+      await client.auth.completeSignup({ socialSignupDTO });
+      alertService.showAlert("회원가입이 완료되었습니다!", "success");
+      router.push("/");
+    } catch (error: unknown) {
+      let message = "회원가입에 실패했습니다. 다시 시도해주세요.";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      alertService.showAlert(message, "error");
+    }
   };
 
   return (

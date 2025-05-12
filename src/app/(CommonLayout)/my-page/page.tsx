@@ -14,13 +14,13 @@ import {
   TextField,
   Divider,
 } from "@mui/material";
-import memberData from "@/api/zzirit/mocks/member.json";
 import ordersData from "@/api/zzirit/mocks/orders.json";
 import {
   OrderFetchResponse,
   OrderFetchResponseFromJSON,
 } from "@/api/zzirit/models/OrderFetchResponse";
 import ImageWithFallback from "@/components/ImageWithFallback";
+import { useGetMyPageInfo } from "@/queries/member/useGetMyPageInfo";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {
@@ -41,14 +41,22 @@ declare global {
 }
 
 export default function MyPage() {
-  // 내 정보 상태
-  const [address, setAddress] = useState(memberData.memberAddress);
-  const [detailAddress, setDetailAddress] = useState(
-    memberData.memberAddressDetail
-  );
+  // 내 정보 쿼리
+  const { data, isLoading, isError } = useGetMyPageInfo();
+  const memberInfo = data?.result;
+
+  // 주소 상태 (수정 다이얼로그용)
+  const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
   const [editOpen, setEditOpen] = useState(false);
-  const [editAddress, setEditAddress] = useState(address);
-  const [editDetailAddress, setEditDetailAddress] = useState(detailAddress);
+  const [editAddress, setEditAddress] = useState("");
+  const [editDetailAddress, setEditDetailAddress] = useState("");
+
+  // 쿼리 데이터가 바뀔 때 주소 상태 동기화
+  React.useEffect(() => {
+    setAddress(memberInfo?.memberAddress || "");
+    setDetailAddress(memberInfo?.memberAddressDetail || "");
+  }, [memberInfo?.memberAddress, memberInfo?.memberAddressDetail]);
 
   // 주소 검색 팝업
   const handleOpenAddressPopup = () => {
@@ -133,20 +141,25 @@ export default function MyPage() {
           </Button>
         </Box>
         <Paper sx={{ p: 3, pt: 2, mb: 2 }}>
-          <Stack spacing={1}>
-            <Typography>
-              <b>이메일</b>: {memberData.memberEmail}
+          {isLoading ? (
+            <Typography color="text.secondary">불러오는 중...</Typography>
+          ) : isError ? (
+            <Typography color="error">
+              내 정보를 불러오지 못했습니다.
             </Typography>
-            <Typography>
-              <b>이름</b>: {memberData.memberName}
-            </Typography>
-            <Typography>
-              <b>주소</b>: {address}
-            </Typography>
-            <Typography>
-              <b>상세주소</b>: {detailAddress}
-            </Typography>
-          </Stack>
+          ) : (
+            <Stack spacing={1}>
+              <Typography>
+                <b>이름</b>: {memberInfo?.memberName || "-"}
+              </Typography>
+              <Typography>
+                <b>주소</b>: {address}
+              </Typography>
+              <Typography>
+                <b>상세주소</b>: {detailAddress}
+              </Typography>
+            </Stack>
+          )}
         </Paper>
       </Box>
 

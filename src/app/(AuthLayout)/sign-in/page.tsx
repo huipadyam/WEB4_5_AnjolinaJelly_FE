@@ -21,6 +21,7 @@ import {
 import { Google as GoogleIcon } from "@mui/icons-material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { alertService } from "@/components/admin/AlertSnackbar";
 
 // 폼 유효성 검사 스키마 정의
 const loginSchema = z.object({
@@ -51,11 +52,33 @@ export default function SignIn() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      // TODO: 로그인 API 호출 로직 구현
-      console.log(data);
-      router.push("/");
+      const response = await fetch(
+        "https://api.zzirit.shop/api/auth/basic/login",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            username: data.email,
+            password: data.password,
+          }),
+        }
+      );
+      const result = await response.json();
+      console.log(result);
+      if (response.ok) {
+        alertService.showAlert("로그인에 성공했습니다!", "success");
+        router.push("/");
+      } else {
+        alertService.showAlert(
+          result?.message || "로그인에 실패했습니다.",
+          "error"
+        );
+      }
     } catch (error) {
-      console.error(error);
+      let message = "로그인에 실패했습니다. 다시 시도해주세요.";
+      if (error instanceof Error) {
+        message = error.message;
+      }
+      alertService.showAlert(message, "error");
     } finally {
       setIsLoading(false);
     }
