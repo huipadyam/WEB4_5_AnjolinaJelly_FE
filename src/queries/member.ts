@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { client } from "@/api/zzirit/client";
 import type { BaseResponseMyPageInfoDTO } from "@/api/zzirit/models/BaseResponseMyPageInfoDTO";
+import { myPageKeys } from "./queryKeys";
 
 // 내 정보 조회 쿼리 훅
 export function useGetMyPageInfo() {
   return useQuery<BaseResponseMyPageInfoDTO, Error>({
-    queryKey: ["myPageInfo"],
+    queryKey: myPageKeys.all,
     queryFn: async () => {
       return await client.auth.getMyPageInfo();
     },

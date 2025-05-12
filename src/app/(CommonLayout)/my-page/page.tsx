@@ -20,7 +20,7 @@ import {
   OrderFetchResponseFromJSON,
 } from "@/api/zzirit/models/OrderFetchResponse";
 import ImageWithFallback from "@/components/ImageWithFallback";
-import { useGetMyPageInfo } from "@/queries/member/useGetMyPageInfo";
+import { useGetMyPageInfo } from "@/queries/member";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {

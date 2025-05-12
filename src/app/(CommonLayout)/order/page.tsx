@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Typography,
@@ -15,76 +15,85 @@ import {
   Stack,
 } from "@mui/material";
 import { useRouter } from "next/navigation";
-import memberData from "@/api/zzirit/mocks/member.json";
-import itemsData from "@/api/zzirit/mocks/items.json";
-import { Member, MemberRoleEnum } from "@/api/zzirit/models/Member";
-import { ItemResponse } from "@/api/zzirit";
-
-const LOCAL_KEY = "cart_items";
+import { useCartQuery } from "@/queries/cart";
+import {
+  useInitOrderMutation,
+  useConfirmPaymentMutation,
+  useFailPaymentMutation,
+} from "@/queries/order";
+import { useGetMyPageInfo } from "@/queries/member";
 
 export default function OrderPage() {
+  const { data: myPageInfo } = useGetMyPageInfo();
   const router = useRouter();
   const [request, setRequest] = useState("");
   const [open, setOpen] = useState(false);
-  const [counts, setCounts] = useState<Record<number, number>>({});
+  const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  // member mock 데이터
-  const member: Member = {
-    ...memberData,
-    createdAt: memberData.createdAt
-      ? new Date(memberData.createdAt)
-      : undefined,
-    updatedAt: memberData.updatedAt
-      ? new Date(memberData.updatedAt)
-      : undefined,
-    role: memberData.role as MemberRoleEnum,
-  };
-  // 상품 mock 데이터 (2개만)
-  const items = itemsData.result.content.slice(
-    0,
-    2
-  ) as unknown as ItemResponse[];
+  // 장바구니 데이터 가져오기
+  const { data: cartItems = [] } = useCartQuery();
 
-  // 로컬스토리지에서 count 정보 불러오기
-  const getLocalCounts = (): Record<number, number> => {
-    if (typeof window === "undefined") return {};
-    try {
-      return JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  };
-
-  // 주문 페이지 진입 시 장바구니와 동기화
-  useEffect(() => {
-    const localCounts = getLocalCounts();
-    // 주문 상품만 필터링
-    const validCounts: Record<number, number> = {};
-
-    items.forEach((item) => {
-      if (item.itemId !== undefined) {
-        validCounts[item.itemId] = localCounts[item.itemId] ?? 1;
-      }
-    });
-
-    setCounts(validCounts);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 결제(주문 생성) mutation
+  const initOrderMutation = useInitOrderMutation();
+  // 결제 성공/실패 mutation
+  const confirmPaymentMutation = useConfirmPaymentMutation();
+  const failPaymentMutation = useFailPaymentMutation();
 
   // 총 합계 계산
-  const totalPrice = items.reduce(
-    (sum, item) => sum + (item.price ?? 0) * (counts[item.itemId ?? 0] ?? 1),
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
     0
   );
 
   // 결제하기 버튼 클릭
-  const handleOrder = () => {
-    // TODO: 주문 생성 API 호출 필요
-    // 결제 시 장바구니에서 해당 상품 제거
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(LOCAL_KEY);
+  const handleOrder = async () => {
+    try {
+      // 주문 생성(결제용 주문번호 발급)
+      const res = await initOrderMutation.mutateAsync({
+        orderItems: cartItems.map((item) => ({
+          itemId: item.itemId,
+          quantity: item.quantity,
+          itemName: item.name,
+          price: item.price,
+        })),
+        totalAmount: totalPrice,
+        shippingRequest: request,
+        address: myPageInfo?.result?.memberAddress,
+        addressDetail: myPageInfo?.result?.memberAddressDetail,
+      });
+      const orderId = res.result; // 주문번호 (string)
+
+      // 토스페이 결제창 연동 예시 (window.open 또는 tossPayments SDK)
+      const paymentUrl = `/mock-toss-pay?orderId=${orderId}&amount=${totalPrice}`;
+      window.open(paymentUrl, "_blank", "width=500,height=700");
+
+      // 결제 결과를 메시지로 받는 예시 (실제 서비스는 결제 콜백 URL 활용)
+      window.addEventListener(
+        "message",
+        async (event) => {
+          if (event.data?.paymentSuccess) {
+            // 결제 성공 시 결제 확정 API 호출
+            await confirmPaymentMutation.mutateAsync({
+              paymentKey: event.data.paymentKey,
+              orderId: event.data.orderId,
+              amount: String(totalPrice),
+            });
+            setOpen(true);
+          } else if (event.data?.paymentFail) {
+            // 결제 실패 시 결제 실패 API 호출
+            await failPaymentMutation.mutateAsync({
+              code: event.data.code,
+              message: event.data.message,
+              orderId: event.data.orderId,
+            });
+            setPaymentError("결제에 실패했습니다. 다시 시도해주세요.");
+          }
+        },
+        { once: true }
+      );
+    } catch {
+      setPaymentError("주문 생성에 실패했습니다.");
     }
-    setOpen(true);
   };
 
   // 다이얼로그 버튼 핸들러
@@ -106,17 +115,17 @@ export default function OrderPage() {
         minHeight: "100vh",
       }}
     >
-      {/* 배송정보 */}
+      {/* 배송정보 (실제 서비스에서는 회원정보 API로 대체) */}
       <Typography variant="h5" fontWeight="bold" mb={2}>
         배송정보
       </Typography>
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography fontWeight="bold">{member.memberName}</Typography>
+        <Typography fontWeight="bold">홍길동</Typography>
         <Typography color="text.secondary" fontSize={15}>
-          {member.memberAddress}
+          서울특별시 강남구 테헤란로 123
         </Typography>
         <Typography color="text.secondary" fontSize={15}>
-          {member.memberAddressDetail}
+          101동 202호
         </Typography>
         <TextField
           label="배송시 요청사항"
@@ -135,7 +144,7 @@ export default function OrderPage() {
         주문정보
       </Typography>
       <Paper sx={{ mb: 2 }}>
-        {items.map((item) => (
+        {cartItems.map((item) => (
           <Box
             key={item.itemId}
             sx={{
@@ -146,28 +155,22 @@ export default function OrderPage() {
               ":last-child": { borderBottom: 0 },
             }}
           >
-            {/* 상품 정보 */}
             <Box sx={{ flex: 1 }}>
               <Typography fontWeight="bold">{item.name}</Typography>
               <Typography variant="body2" color="text.secondary">
                 {item.type} | {item.brand}
               </Typography>
             </Box>
-            {/* 수량/가격 */}
             <Stack alignItems="flex-end">
-              <Typography>수량: {counts[item.itemId ?? 0] ?? 1}</Typography>
+              <Typography>수량: {item.quantity ?? 1}</Typography>
               <Typography fontWeight="bold">
-                {(
-                  (item.price ?? 0) * (counts[item.itemId ?? 0] ?? 1)
-                ).toLocaleString()}
-                원
+                {(item.price ?? 0 * (item.quantity ?? 1)).toLocaleString()}원
               </Typography>
             </Stack>
           </Box>
         ))}
       </Paper>
       <Divider />
-      {/* 총 합계 및 결제 버튼 */}
       <Box
         sx={{
           display: "flex",
@@ -191,8 +194,11 @@ export default function OrderPage() {
       >
         결제하기
       </Button>
-
-      {/* 결제 완료 다이얼로그 */}
+      {paymentError && (
+        <Typography color="error" mb={2}>
+          {paymentError}
+        </Typography>
+      )}
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>주문이 접수되었습니다.</DialogTitle>
         <DialogContent>
