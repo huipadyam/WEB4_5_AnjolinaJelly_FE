@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { notFound } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import {
   Box,
   Stack,
@@ -14,12 +14,8 @@ import {
   DialogActions,
 } from "@mui/material";
 import ImageWithFallback from "@/components/ImageWithFallback";
-import timedealsData from "@/api/zzirit/mocks/timedeals.json";
-import itemsData from "@/api/zzirit/mocks/items.json";
-import {
-  ItemResponse,
-  ItemResponseTimeDealStatusEnum,
-} from "@/api/zzirit/models/ItemResponse";
+import { ItemResponseTimeDealStatusEnum } from "@/api/zzirit";
+import { useAddToCartMutation, useItemDetailQuery } from "@/queries/item";
 
 // 가격 3자리 콤마
 function formatPrice(price?: number) {
@@ -38,153 +34,66 @@ function getTimeLeft(end: Date) {
   return `${h}시간 ${m}분 ${s}초 남음`;
 }
 
-// 타임딜 정보 찾기
-interface TimeDealItemInfo {
-  discountRate: number;
-  originalPrice: number;
-  finalPrice: number;
-  quantity: number;
-  endTime: string;
-}
-function findTimeDealInfo(itemId: number): TimeDealItemInfo | null {
-  const deals: Array<{
-    discountRate: number;
-    endTime: string;
-    items: Array<{
-      itemId: number;
-      originalPrice: number;
-      finalPrice: number;
-      quantity: number;
-    }>;
-  }> = timedealsData.result.content;
-  for (const deal of deals) {
-    const found = deal.items.find((i) => i.itemId === itemId);
-    if (found) {
-      return {
-        discountRate: deal.discountRate,
-        originalPrice: found.originalPrice,
-        finalPrice: found.finalPrice,
-        quantity: found.quantity,
-        endTime: deal.endTime,
-      };
-    }
-  }
-  return null;
-}
+export default function ItemDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = Number(params?.id);
+  const { data, isLoading, error } = useItemDetailQuery(id);
+  const addToCart = useAddToCartMutation();
 
-// items.json -> ItemResponse로 변환 (endTimeDeal 변환 포함)
-function toItemResponse(raw: unknown): ItemResponse {
-  if (typeof raw === "object" && raw !== null) {
-    const {
-      itemId,
-      name,
-      type,
-      brand,
-      quantity,
-      price,
-      timeDealStatus,
-      endTimeDeal,
-    } = raw as {
-      itemId?: number;
-      name?: string;
-      type?: string;
-      brand?: string;
-      quantity?: number;
-      price?: number;
-      timeDealStatus?: string;
-      endTimeDeal?: string | null;
-    };
-    let status: ItemResponse["timeDealStatus"] = undefined;
-    if (timeDealStatus === "NONE") status = ItemResponseTimeDealStatusEnum.None;
-    else if (timeDealStatus === "TIME_DEAL")
-      status = ItemResponseTimeDealStatusEnum.TimeDeal;
-    return {
-      itemId,
-      name,
-      type,
-      brand,
-      quantity,
-      price,
-      timeDealStatus: status,
-      endTimeDeal: endTimeDeal ? new Date(endTimeDeal) : undefined,
-    };
-  }
-  return {};
-}
-
-export default function ItemDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  // React Hook은 조건문 이전에 선언해야 함
   const [modalOpen, setModalOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
-  // Next.js 15: params는 Promise이므로 React.use()로 언래핑
-  const { id } = React.use(params);
-  const itemId = Number(id);
-  if (!itemId) return notFound();
-  const item = (itemsData.result.content as unknown[])
-    .map(toItemResponse)
-    .find((i) => i.itemId === itemId);
-  if (!item) return notFound();
+  if (isLoading) return <Typography>로딩 중...</Typography>;
+  if (error || !data?.result)
+    return <Typography>상품을 찾을 수 없습니다.</Typography>;
 
-  // 타임딜 정보
-  const timeDealInfo = findTimeDealInfo(item.itemId!);
-  const isTimeDeal = !!timeDealInfo;
+  const item = data.result;
 
   // 장바구니 담기 핸들러
   const handleAddToCart = async () => {
-    setLoading(true);
-    setError(null);
+    setErrorMsg(null);
     try {
-      // 장바구니에 담는 로직 (API 호출)
-      // 실제 서비스에서는 아래 주석을 해제하여 사용하세요.
-      // const req: CartItemAddRequest = {
-      //   itemId: item.itemId!,
-      //   quantity: 1,
-      //   timeDeal: isTimeDeal,
-      // };
-      // await client.addItemToCart({ cartItemAddRequest: req });
-      setModalOpen(true); // API 호출 없이 모달만 띄움
-    } catch (e: unknown) {
-      let message = "장바구니 담기에 실패했습니다. 다시 시도해주세요.";
-      if (e instanceof Error && e.message) message = e.message;
-      setError(message);
+      await addToCart.mutateAsync({ itemId: item.itemId!, quantity: 1 });
       setModalOpen(true);
-    } finally {
-      setLoading(false);
+    } catch (e: unknown) {
+      setErrorMsg(
+        e instanceof Error
+          ? e.message
+          : "장바구니 담기에 실패했습니다. 다시 시도해주세요."
+      );
+      setModalOpen(true);
     }
   };
 
   // 모달 닫기
   const handleCloseModal = () => {
     setModalOpen(false);
-    setError(null);
+    setErrorMsg(null);
   };
 
   // 장바구니 페이지로 이동
   const handleGoToCart = () => {
-    window.location.href = "/cart";
+    router.push("/cart");
   };
 
   return (
     <Box sx={{ maxWidth: 900, mx: "auto", my: 6, p: { xs: 1, sm: 3 } }}>
       {/* 장바구니 추가 완료 모달 */}
       <Dialog open={modalOpen} onClose={handleCloseModal}>
-        <DialogTitle>{error ? "오류" : "장바구니 추가 완료"}</DialogTitle>
+        <DialogTitle>{errorMsg ? "오류" : "장바구니 추가 완료"}</DialogTitle>
         <DialogContent>
           <Typography>
-            {error ? error : "상품이 장바구니에 추가되었습니다. 이동할까요?"}
+            {errorMsg
+              ? errorMsg
+              : "상품이 장바구니에 추가되었습니다. 이동할까요?"}
           </Typography>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal} color="inherit">
-            {error ? "닫기" : "계속 쇼핑하기"}
+            {errorMsg ? "닫기" : "계속 쇼핑하기"}
           </Button>
-          {!error && (
+          {!errorMsg && (
             <Button
               onClick={handleGoToCart}
               color="primary"
@@ -203,7 +112,7 @@ export default function ItemDetailPage({
         {/* 좌측: 상품 이미지 */}
         <Box sx={{ minWidth: 320, maxWidth: 400, flex: 1 }}>
           <ImageWithFallback
-            src={"/images/placeholder.png"}
+            src={item.imageUrl || "/images/placeholder.png"}
             alt={item.name || "상품 이미지"}
             width={400}
             height={400}
@@ -221,17 +130,11 @@ export default function ItemDetailPage({
         {/* 우측: 상품 정보 */}
         <Box sx={{ flex: 2, display: "flex", flexDirection: "column", gap: 1 }}>
           {/* 타임딜 라벨 및 남은 시간 */}
-          {isTimeDeal && timeDealInfo && (
+          {item.timeDealStatus === ItemResponseTimeDealStatusEnum.TimeDeal && (
             <Stack direction="row" alignItems="center" spacing={2} mb={1}>
-              <Chip
-                label="타임딜 상품"
-                color="error"
-                size="small"
-                sx={{ fontWeight: 700 }}
-              />
               <Typography color="error" fontWeight={700}>
-                {timeDealInfo.endTime
-                  ? getTimeLeft(new Date(timeDealInfo.endTime))
+                {item.endTimeDeal
+                  ? getTimeLeft(new Date(item.endTimeDeal))
                   : "-"}
               </Typography>
             </Stack>
@@ -258,24 +161,24 @@ export default function ItemDetailPage({
 
           {/* 가격/할인 */}
           <Box>
-            {isTimeDeal && timeDealInfo ? (
+            {item.timeDealStatus === ItemResponseTimeDealStatusEnum.TimeDeal ? (
               <Stack direction="column">
                 <Stack direction="row" alignItems="baseline" spacing={1.5}>
                   <Stack direction="row" alignItems="baseline" spacing={0.5}>
                     <Typography variant="h5" color="error" fontWeight={700}>
-                      {formatPrice(timeDealInfo.finalPrice)}원
+                      {formatPrice(item.discountedPrice)}원
                     </Typography>
                     <Typography
                       variant="caption"
                       color="text.secondary"
                       sx={{ textDecoration: "line-through" }}
                     >
-                      {formatPrice(timeDealInfo.originalPrice)}원
+                      {formatPrice(item.originalPrice)}원
                     </Typography>
                   </Stack>
 
                   <Chip
-                    label={`-${timeDealInfo.discountRate}%`}
+                    label={`-${item.discountRatio}%`}
                     color="warning"
                     size="small"
                     sx={{
@@ -291,12 +194,12 @@ export default function ItemDetailPage({
                   fontWeight={600}
                   mb={2}
                 >
-                  남은 수량: {timeDealInfo.quantity}개
+                  남은 수량: {item.quantity}개
                 </Typography>
               </Stack>
             ) : (
               <Typography variant="h5" fontWeight={700}>
-                {formatPrice(item.price)}원
+                {formatPrice(item.discountedPrice)}원
               </Typography>
             )}
           </Box>
@@ -309,9 +212,8 @@ export default function ItemDetailPage({
               size="large"
               sx={{ minWidth: 140, fontWeight: 700 }}
               onClick={handleAddToCart}
-              disabled={loading}
+              disabled={addToCart.isPending}
             >
-              {/* 장바구니에 담는 로직 실행 (API 호출) */}
               장바구니 담기
             </Button>
             <Button
@@ -319,7 +221,7 @@ export default function ItemDetailPage({
               color="primary"
               size="large"
               sx={{ minWidth: 140, fontWeight: 700 }}
-              onClick={() => (window.location.href = "/order")}
+              onClick={() => router.push("/order")}
             >
               바로 구매하기
             </Button>

@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export interface ItemCardProps extends ItemResponse {
   image: string;
+  price?: number;
   originalPrice?: number;
   discount?: number;
 }
