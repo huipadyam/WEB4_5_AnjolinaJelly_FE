@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   Box,
   Typography,
@@ -12,17 +12,16 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { useRouter } from "next/navigation";
-import { ItemResponse } from "@/api/zzirit";
-import mockItems from "@/api/zzirit/mocks/items.json";
 import ImageWithFallback from "@/components/ImageWithFallback";
+import {
+  CartItem,
+  useCartQuery,
+  useDecreaseCartItemMutation,
+  useIncreaseCartItemMutation,
+  useRemoveCartItemMutation,
+} from "@/queries/cart";
 
-// CartItem 타입만 이 파일 내에서 선언
-interface CartItem extends ItemResponse {
-  count: number;
-}
-
-const LOCAL_KEY = "cart_items";
-
+// 남은 타임딜 시간 계산 함수
 function getRemainTime(endTime: string | null) {
   if (!endTime) return "";
   const diff = new Date(endTime).getTime() - Date.now();
@@ -33,72 +32,29 @@ function getRemainTime(endTime: string | null) {
 }
 
 export default function CartPage() {
-  const [items, setItems] = useState<CartItem[]>([]);
   const router = useRouter();
-
-  // localStorage에서 count 정보 불러오기
-  const getLocalCounts = (): Record<number, number> => {
-    if (typeof window === "undefined") return {};
-    try {
-      return JSON.parse(localStorage.getItem(LOCAL_KEY) || "{}");
-    } catch {
-      return {};
-    }
-  };
-
-  // count 정보 localStorage에 저장
-  const setLocalCounts = (counts: Record<number, number>) => {
-    localStorage.setItem(LOCAL_KEY, JSON.stringify(counts));
-  };
-
-  // mock 데이터 fetch + count 동기화
-  useEffect(() => {
-    const data = mockItems.result.content.slice(
-      0,
-      2
-    ) as unknown as ItemResponse[];
-
-    const localCounts = getLocalCounts();
-    // 서버 데이터와 localStorage 동기화
-    const validCounts: Record<number, number> = {};
-    const cartItems: CartItem[] = data.map((item) => {
-      const count = localCounts[item.itemId ?? 0] ?? 1;
-      validCounts[item.itemId ?? 0] = count;
-      return { ...item, count };
-    });
-    // localStorage에 없는 id는 1로, 서버에 없는 id는 제거
-    setLocalCounts(validCounts);
-    setItems(cartItems);
-  }, []);
-
-  // 개수 변경
-  const handleCountChange = (itemId: number, count: number) => {
-    setItems((prev) =>
-      prev.map((item) => (item.itemId === itemId ? { ...item, count } : item))
-    );
-    const localCounts = getLocalCounts();
-    localCounts[itemId] = count;
-    setLocalCounts(localCounts);
-  };
-
-  // 아이템 삭제
-  const handleRemove = (itemId: number) => {
-    setItems((prev) => prev.filter((item) => item.itemId !== itemId));
-    const localCounts = getLocalCounts();
-    delete localCounts[itemId];
-    setLocalCounts(localCounts);
-  };
+  const { data: items = [], isLoading } = useCartQuery();
+  const increaseMutation = useIncreaseCartItemMutation();
+  const decreaseMutation = useDecreaseCartItemMutation();
+  const removeMutation = useRemoveCartItemMutation();
 
   // 총 가격 계산
   const totalPrice = items.reduce(
-    (sum, item) => sum + (item.price ?? 0) * item.count,
+    (sum: number, item: CartItem) =>
+      sum + (item.price ?? 0) * (item.quantity ?? 1),
     0
   );
 
   // 구매하기
   const handleOrder = () => {
-    router.push("/order"); // 주문 페이지로 이동
+    router.push("/order");
   };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>장바구니를 불러오는 중...</Box>
+    );
+  }
 
   return (
     <Box
@@ -120,7 +76,7 @@ export default function CartPage() {
             장바구니가 비어있습니다.
           </Typography>
         ) : (
-          items.map((item) => (
+          items.map((item: CartItem) => (
             <Box
               key={item.itemId ?? 0}
               sx={{
@@ -130,7 +86,7 @@ export default function CartPage() {
                 borderBottom: "1px solid #eee",
               }}
             >
-              {/* 상품 이미지 (임시) */}
+              {/* 상품 이미지 */}
               <Box
                 sx={{
                   width: 80,
@@ -142,7 +98,7 @@ export default function CartPage() {
                 }}
               >
                 <ImageWithFallback
-                  src="/placeholder.png"
+                  src={item.imageUrl ?? "/placeholder.png"}
                   alt={item.name ?? ""}
                   style={{ objectFit: "contain" }}
                   width={80}
@@ -155,17 +111,10 @@ export default function CartPage() {
                 <Typography variant="body2" color="text.secondary">
                   {(item.type ?? "") + " | " + (item.brand ?? "")}
                 </Typography>
-                {item.timeDealStatus === "TIME_DEAL" && (
+                {item.timeDealStatus === "TIME_DEAL" && item.endTimeDeal && (
                   <>
                     <Typography variant="caption" color="error">
-                      타임딜 •{" "}
-                      {getRemainTime(
-                        item.endTimeDeal
-                          ? typeof item.endTimeDeal === "string"
-                            ? item.endTimeDeal
-                            : item.endTimeDeal.toISOString()
-                          : null
-                      )}
+                      타임딜 • {getRemainTime(item.endTimeDeal)}
                     </Typography>
                     <Typography mt={1}>
                       <b>{(item.price ?? 0).toLocaleString()}원</b>
@@ -190,7 +139,7 @@ export default function CartPage() {
               >
                 <IconButton
                   size="small"
-                  onClick={() => handleRemove(item.itemId ?? 0)}
+                  onClick={() => removeMutation.mutate(item.itemId ?? 0)}
                   sx={{ mb: 1 }}
                 >
                   <CloseIcon fontSize="small" />
@@ -198,32 +147,40 @@ export default function CartPage() {
                 <Box
                   sx={{
                     display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-end",
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
                 >
+                  <Button
+                    size="small"
+                    onClick={() => decreaseMutation.mutate(item.itemId ?? 0)}
+                    disabled={!!item.quantity && item.quantity <= 1}
+                  >
+                    -
+                  </Button>
                   <TextField
                     type="number"
                     size="small"
-                    value={item.count}
+                    value={item.quantity}
                     inputProps={{
                       min: 1,
-                      max: item.quantity ?? 1,
+                      max: item.stock ?? 99,
                       style: { width: 40, textAlign: "center" },
+                      readOnly: true,
                     }}
-                    onChange={(e) => {
-                      const v = Math.max(
-                        1,
-                        Math.min(item.quantity ?? 1, Number(e.target.value))
-                      );
-                      handleCountChange(item.itemId ?? 0, v);
-                    }}
-                    sx={{ mb: 1 }}
+                    sx={{ mx: 1 }}
                   />
-                  <Typography fontWeight="bold" fontSize={15}>
-                    {((item.price ?? 0) * item.count).toLocaleString()}원
-                  </Typography>
+                  <Button
+                    size="small"
+                    onClick={() => increaseMutation.mutate(item.itemId ?? 0)}
+                  >
+                    +
+                  </Button>
                 </Box>
+                <Typography fontWeight="bold" fontSize={15}>
+                  {((item.price ?? 0) * (item.quantity ?? 1)).toLocaleString()}
+                  원
+                </Typography>
               </Box>
             </Box>
           ))
