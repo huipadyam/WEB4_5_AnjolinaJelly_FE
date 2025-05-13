@@ -1,10 +1,14 @@
+"use client";
 import React, { useRef, useEffect } from "react";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import ItemCard from "./ItemCard";
 import { useInfiniteItemsQuery } from "@/queries/item";
+import { useSearchParams } from "next/navigation";
 
 export default function ProductGridSection() {
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get("keyword") || undefined;
   const {
     data,
     fetchNextPage,
@@ -12,7 +16,7 @@ export default function ProductGridSection() {
     isFetchingNextPage,
     isLoading,
     isError,
-  } = useInfiniteItemsQuery();
+  } = useInfiniteItemsQuery({ keyword });
 
   // Intersection Observer로 스크롤 하단 감지 후 fetchNextPage()
   const loaderRef = useRef<HTMLDivElement | null>(null);
@@ -55,18 +59,8 @@ export default function ProductGridSection() {
     >
       <Grid container spacing={3} justifyContent="flex-start">
         {items.map((product) => (
-          <Grid key={product.itemId}>
-            <ItemCard
-              itemId={product.itemId ?? 0}
-              image={product.imageUrl ?? "/images/placeholder.png"}
-              name={product.name ?? ""}
-              type={product.type ?? ""}
-              price={product.discountedPrice ?? 0}
-              timeDealStatus={product.timeDealStatus}
-              endTimeDeal={product.endTime}
-              originalPrice={product.originalPrice}
-              discount={product.discountRatio}
-            />
+          <Grid key={product.itemId} size={4}>
+            <ItemCard {...product} />
           </Grid>
         ))}
       </Grid>

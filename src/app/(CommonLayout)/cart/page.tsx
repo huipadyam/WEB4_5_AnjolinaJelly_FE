@@ -149,29 +149,47 @@ export default function CartPage() {
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
+                    gap: 0,
                   }}
                 >
                   <Button
-                    size="small"
+                    variant="text"
+                    color="secondary"
+                    sx={{
+                      p: 0,
+                      minWidth: 30,
+                      fontSize: 16,
+                    }}
                     onClick={() => decreaseMutation.mutate(item.itemId ?? 0)}
                     disabled={!!item.quantity && item.quantity <= 1}
                   >
                     -
                   </Button>
                   <TextField
-                    type="number"
                     size="small"
                     value={item.quantity}
                     inputProps={{
                       min: 1,
                       max: item.stock ?? 99,
-                      style: { width: 40, textAlign: "center" },
+                      style: {
+                        width: 16,
+                        textAlign: "center",
+                        fontSize: 12,
+                        padding: "6px 8px",
+                      },
                       readOnly: true,
                     }}
-                    sx={{ mx: 1 }}
+                    sx={{ mx: 0.25 }}
                   />
                   <Button
                     size="small"
+                    variant="text"
+                    color="secondary"
+                    sx={{
+                      p: 0,
+                      minWidth: 30,
+                      fontSize: 16,
+                    }}
                     onClick={() => increaseMutation.mutate(item.itemId ?? 0)}
                   >
                     +

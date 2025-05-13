@@ -15,6 +15,8 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { client } from "@/api/zzirit/client";
+import { alertService } from "@/components/admin/AlertSnackbar";
+import { ResponseError } from "@/api/zzirit";
 
 const signUpSchema = z
   .object({
@@ -71,6 +73,7 @@ export default function SignUp() {
     formState: { errors },
     getValues,
     setError,
+    setValue,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
@@ -99,17 +102,20 @@ export default function SignUp() {
     setLoading(true);
     try {
       await client.auth.sendEmailVerificationCode({
-        emailAuthDTO: { email: email },
+        emailAuthRequest: { email: email },
       });
       setIsEmailSent(true);
       setIsEmailVerified(false);
       setTimer(180); // 3분
       setCanResend(false);
       setInputCode("");
-      alert("인증번호가 이메일로 발송되었습니다.");
+      alertService.showAlert("인증번호가 이메일로 발송되었습니다.", "success");
     } catch (e: unknown) {
       const err = e as Error;
-      alert(err?.message || "인증번호 발송에 실패했습니다.");
+      alertService.showAlert(
+        err?.message || "인증번호 발송에 실패했습니다.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -128,22 +134,25 @@ export default function SignUp() {
       return;
     }
     if (!inputCode) {
-      alert("인증번호를 입력해주세요.");
+      alertService.showAlert("인증번호를 입력해주세요.", "error");
       return;
     }
     setLoading(true);
     try {
       await client.auth.verifyEmailCode({
-        emailAuthVerificationDTO: {
+        emailAuthVerifyRequest: {
           email,
           code: inputCode,
         },
       });
       setIsEmailVerified(true);
-      alert("이메일 인증이 완료되었습니다.");
+      alertService.showAlert("이메일 인증이 완료되었습니다.", "success");
     } catch (e: unknown) {
       const err = e as Error;
-      alert(err?.message || "인증번호가 올바르지 않습니다.");
+      alertService.showAlert(
+        err?.message || "인증번호가 올바르지 않습니다.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -152,7 +161,7 @@ export default function SignUp() {
   // 주소 검색 팝업 오픈 함수
   const handleOpenAddressPopup = () => {
     if (!window.daum || !window.daum.Postcode) {
-      alert(
+      alertService.showAlert(
         "주소 검색 서비스를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요."
       );
       return;
@@ -176,6 +185,7 @@ export default function SignUp() {
           }
         }
         setAddress(fullAddress);
+        setValue("address", fullAddress, { shouldValidate: true });
       },
     }).open();
   };
@@ -185,22 +195,23 @@ export default function SignUp() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.address) {
         setAddress(event.data.address);
+        setValue("address", event.data.address, { shouldValidate: true });
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [setValue]);
 
   // 회원가입 폼 제출 핸들러
   const onSubmit = async (data: SignUpFormData) => {
     // if (!isEmailVerified) {
-    //   alert("이메일 인증을 완료해주세요.");
+    //   alertService.showAlert("이메일 인증을 완료해주세요.", "error");
     //   return;
     // }
     setLoading(true);
     try {
       await client.auth.signup({
-        signupDTO: {
+        signupRequest: {
           memberName: data.name,
           memberEmail: data.email,
           memberPassword: data.password,
@@ -208,11 +219,16 @@ export default function SignUp() {
           memberAddressDetail: data.detailAddress,
         },
       });
-      alert("회원가입이 완료되었습니다!");
-      router.push("/");
-    } catch (e: unknown) {
-      const err = e as Error;
-      alert(err?.message || "회원가입에 실패했습니다.");
+
+      alertService.showAlert("회원가입이 완료되었습니다!", "success");
+      router.push("/sign-in");
+    } catch (e) {
+      const err = e as ResponseError;
+      if (err.response.status === 409) {
+        alertService.showAlert("이미 존재하는 이메일입니다.", "error");
+      } else {
+        alertService.showAlert("회원가입에 실패했습니다.", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -293,7 +309,9 @@ export default function SignUp() {
                 color="secondary"
                 onClick={handleSendCode}
                 disabled={
-                  (isEmailSent && !canResend && !isEmailVerified) || loading
+                  (isEmailSent && !canResend && !isEmailVerified) ||
+                  loading ||
+                  isEmailVerified
                 }
               >
                 {canResend ? "재전송" : "인증번호 발송"}

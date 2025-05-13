@@ -22,6 +22,7 @@ import {
   useFailPaymentMutation,
 } from "@/queries/order";
 import { useGetMyPageInfo } from "@/queries/member";
+import ImageWithFallback from "@/components/ImageWithFallback";
 
 export default function OrderPage() {
   const { data: myPageInfo } = useGetMyPageInfo();
@@ -58,8 +59,8 @@ export default function OrderPage() {
         })),
         totalAmount: totalPrice,
         shippingRequest: request,
-        address: myPageInfo?.result?.memberAddress,
-        addressDetail: myPageInfo?.result?.memberAddressDetail,
+        address: myPageInfo?.memberAddress,
+        addressDetail: myPageInfo?.memberAddressDetail,
       });
       const orderId = res.result; // 주문번호 (string)
 
@@ -120,12 +121,12 @@ export default function OrderPage() {
         배송정보
       </Typography>
       <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography fontWeight="bold">홍길동</Typography>
+        <Typography fontWeight="bold">{myPageInfo?.memberName}</Typography>
         <Typography color="text.secondary" fontSize={15}>
-          서울특별시 강남구 테헤란로 123
+          {myPageInfo?.memberAddress}
         </Typography>
         <Typography color="text.secondary" fontSize={15}>
-          101동 202호
+          {myPageInfo?.memberAddressDetail}
         </Typography>
         <TextField
           label="배송시 요청사항"
@@ -155,6 +156,25 @@ export default function OrderPage() {
               ":last-child": { borderBottom: 0 },
             }}
           >
+            {/* 상품 이미지 */}
+            <Box
+              sx={{
+                width: 80,
+                height: 80,
+                mr: 2,
+                bgcolor: "#f5f5f5",
+                borderRadius: 2,
+                position: "relative",
+              }}
+            >
+              <ImageWithFallback
+                src={item.imageUrl ?? "/placeholder.png"}
+                alt={item.name ?? ""}
+                style={{ objectFit: "contain" }}
+                width={80}
+                height={80}
+              />
+            </Box>
             <Box sx={{ flex: 1 }}>
               <Typography fontWeight="bold">{item.name}</Typography>
               <Typography variant="body2" color="text.secondary">

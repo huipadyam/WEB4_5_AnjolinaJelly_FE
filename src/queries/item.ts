@@ -8,7 +8,7 @@ import {
 import { client } from "@/api/zzirit/client";
 import { itemKeys, timeDealKeys } from "./queryKeys";
 import { CurrentTimeDealItem } from "@/api/zzirit/models/CurrentTimeDealItem";
-import { PageResponseSimpleItemResponse } from "@/api/zzirit/models/PageResponseSimpleItemResponse";
+import { PageResponseSimpleItemFetchResponse } from "@/api/zzirit";
 
 // 상품 상세 조회 쿼리
 export function useItemDetailQuery(id: number) {
@@ -25,7 +25,7 @@ export function useAddToCartMutation() {
   return useMutation({
     mutationFn: (params: { itemId: number; quantity: number }) =>
       client.api.addItemToCart({
-        cartItemAddRequest: {
+        cartItemCreateRequest: {
           itemId: params.itemId,
           quantity: params.quantity,
         },
@@ -45,25 +45,41 @@ export function useCurrentTimeDealItemsQuery() {
     queryKey: timeDealKeys.all,
     queryFn: async () => {
       const res = await client.api.getCurrentTimeDeals();
-      if (!res.result || !res.result.items) return [];
+      if (!res.result || !res.result.content) return [];
       // 타임딜 정보와 상품 정보를 함께 반환
-      return res.result.items.map((item) => ({
+      return res.result.content.map((item) => ({
         ...item,
-        timeDealEnd: res.result?.endTime, // 타임딜 종료시간
-        discountRatio: res.result?.discountRatio, // 타임딜 할인율
+        timeDealEnd: item.endTime, // 타임딜 종료시간
+        discountRatio: item.discountRatio, // 타임딜 할인율
       }));
     },
   });
 }
 
 // 상품 목록 무한스크롤 쿼리
-export function useInfiniteItemsQuery(pageSize: number = 20) {
-  return useInfiniteQuery<PageResponseSimpleItemResponse, Error>({
-    queryKey: itemKeys.all,
+export interface InfiniteItemsQueryParams {
+  pageSize?: number;
+  keyword?: string;
+  types?: string[];
+  brands?: string[];
+  sort?: string;
+}
+
+export function useInfiniteItemsQuery(params: InfiniteItemsQueryParams = {}) {
+  const { pageSize = 20, keyword, types, brands, sort } = params;
+  return useInfiniteQuery<PageResponseSimpleItemFetchResponse, Error>({
+    queryKey: [itemKeys.all, { keyword, types, brands, sort }],
     queryFn: async (ctx: QueryFunctionContext) => {
       const pageParam = ctx.pageParam as number | undefined;
       const page = typeof pageParam === "number" ? pageParam : 1;
-      const res = await client.api.getItems({ page, size: pageSize });
+      const res = await client.api.search({
+        page,
+        size: pageSize,
+        keyword,
+        types,
+        brands,
+        sort,
+      });
       return res.result!;
     },
     getNextPageParam: (lastPage, allPages) => {

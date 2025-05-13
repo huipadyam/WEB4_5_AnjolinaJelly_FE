@@ -14,7 +14,7 @@ import {
   DialogActions,
 } from "@mui/material";
 import ImageWithFallback from "@/components/ImageWithFallback";
-import { ItemResponseTimeDealStatusEnum } from "@/api/zzirit";
+import { ItemResponseTimeDealStatusEnum } from "@/api/zzirit/models/ItemResponse";
 import { useAddToCartMutation, useItemDetailQuery } from "@/queries/item";
 
 // 가격 3자리 콤마
@@ -130,7 +130,7 @@ export default function ItemDetailPage() {
         {/* 우측: 상품 정보 */}
         <Box sx={{ flex: 2, display: "flex", flexDirection: "column", gap: 1 }}>
           {/* 타임딜 라벨 및 남은 시간 */}
-          {item.timeDealStatus === ItemResponseTimeDealStatusEnum.TimeDeal && (
+          {item.itemStatus === ItemResponseTimeDealStatusEnum.TimeDeal && (
             <Stack direction="row" alignItems="center" spacing={2} mb={1}>
               <Typography color="error" fontWeight={700}>
                 {item.endTimeDeal
@@ -161,7 +161,7 @@ export default function ItemDetailPage() {
 
           {/* 가격/할인 */}
           <Box>
-            {item.timeDealStatus === ItemResponseTimeDealStatusEnum.TimeDeal ? (
+            {item.itemStatus === ItemResponseTimeDealStatusEnum.TimeDeal ? (
               <Stack direction="column">
                 <Stack direction="row" alignItems="baseline" spacing={1.5}>
                   <Stack direction="row" alignItems="baseline" spacing={0.5}>
@@ -199,7 +199,7 @@ export default function ItemDetailPage() {
               </Stack>
             ) : (
               <Typography variant="h5" fontWeight={700}>
-                {formatPrice(item.discountedPrice)}원
+                {formatPrice(item.originalPrice)}원
               </Typography>
             )}
           </Box>
@@ -207,23 +207,14 @@ export default function ItemDetailPage() {
           {/* 장바구니/구매 버튼 */}
           <Stack direction="row" spacing={2} mb={3}>
             <Button
-              variant="outlined"
-              color="secondary"
+              variant="contained"
+              color="primary"
               size="large"
               sx={{ minWidth: 140, fontWeight: 700 }}
               onClick={handleAddToCart}
               disabled={addToCart.isPending}
             >
               장바구니 담기
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ minWidth: 140, fontWeight: 700 }}
-              onClick={() => router.push("/order")}
-            >
-              바로 구매하기
             </Button>
           </Stack>
 

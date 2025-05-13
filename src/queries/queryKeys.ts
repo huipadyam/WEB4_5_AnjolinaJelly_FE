@@ -14,3 +14,7 @@ export const timeDealKeys = {
 export const cartKeys = {
   all: ["cart"] as const,
 };
+
+export const orderKeys = {
+  all: ["orders"] as const,
+};

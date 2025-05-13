@@ -21,6 +21,7 @@ export default function Header() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const router = useRouter();
+  const [search, setSearch] = useState("");
 
   // 드롭다운 열기
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -43,6 +44,14 @@ export default function Header() {
     }
     handleClose();
     router.push("/sign-in");
+  };
+  // 검색 실행
+  const handleSearch = () => {
+    if (search.trim()) {
+      router.push(`/?keyword=${encodeURIComponent(search.trim())}`);
+    } else {
+      router.push("/");
+    }
   };
 
   return (
@@ -75,6 +84,11 @@ export default function Header() {
             fullWidth
             placeholder="찌릿 상품을 검색해보세요!"
             size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSearch();
+            }}
             sx={{
               backgroundColor: "#F8F9FA",
               borderRadius: 2,
@@ -85,7 +99,11 @@ export default function Header() {
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton edge="end" color="secondary">
+                  <IconButton
+                    edge="end"
+                    color="secondary"
+                    onClick={handleSearch}
+                  >
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>

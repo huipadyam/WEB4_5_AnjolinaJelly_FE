@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -14,13 +14,9 @@ import {
   TextField,
   Divider,
 } from "@mui/material";
-import ordersData from "@/api/zzirit/mocks/orders.json";
-import {
-  OrderFetchResponse,
-  OrderFetchResponseFromJSON,
-} from "@/api/zzirit/models/OrderFetchResponse";
 import ImageWithFallback from "@/components/ImageWithFallback";
 import { useGetMyPageInfo } from "@/queries/member";
+import { useGetMyOrdersInfinite } from "@/queries/order";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {
@@ -42,8 +38,7 @@ declare global {
 
 export default function MyPage() {
   // 내 정보 쿼리
-  const { data, isLoading, isError } = useGetMyPageInfo();
-  const memberInfo = data?.result;
+  const { data: memberInfo, isLoading, isError } = useGetMyPageInfo();
 
   // 주소 상태 (수정 다이얼로그용)
   const [address, setAddress] = useState("");
@@ -102,9 +97,30 @@ export default function MyPage() {
     setEditOpen(false);
   };
 
-  // 주문 내역 데이터
-  const orders: OrderFetchResponse[] = (ordersData as unknown as object[]).map(
-    OrderFetchResponseFromJSON
+  // 무한 스크롤 주문 내역 쿼리
+  const {
+    data: orderPages,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: ordersIsLoading,
+    isError: ordersIsError,
+  } = useGetMyOrdersInfinite();
+
+  // 마지막 주문 카드 ref
+  const observer = useRef<IntersectionObserver | null>(null);
+  const lastOrderRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingNextPage) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new window.IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [isFetchingNextPage, fetchNextPage, hasNextPage]
   );
 
   return (
@@ -209,90 +225,115 @@ export default function MyPage() {
           주문 내역
         </Typography>
         <Stack spacing={3}>
-          {orders.length === 0 && (
-            <Typography color="text.secondary">
-              주문 내역이 없습니다.
+          {ordersIsLoading && (
+            <Typography color="text.secondary">불러오는 중...</Typography>
+          )}
+          {ordersIsError && (
+            <Typography color="error">
+              주문 내역을 불러오지 못했습니다.
             </Typography>
           )}
-          {orders.map((order) => (
-            <Paper key={order.orderId} sx={{ p: 2 }}>
-              {/* 주문 헤더 */}
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography fontWeight="bold">
-                  {order.orderDate &&
-                    new Date(order.orderDate).toLocaleDateString()}{" "}
-                  | 주문번호: {order.orderNumber}
-                </Typography>
-                <Typography
-                  color={
-                    order.orderStatus === "PAID"
-                      ? "success"
-                      : order.orderStatus === "COMPLETED"
-                      ? "info"
-                      : order.orderStatus === "CANCELLED"
-                      ? "error"
-                      : "secondary"
-                  }
-                  fontWeight="bold"
-                >
-                  {order.orderStatus === "PAID"
-                    ? "결제완료"
-                    : order.orderStatus === "COMPLETED"
-                    ? "구매확정"
-                    : order.orderStatus === "CANCELLED"
-                    ? "취소됨"
-                    : order.orderStatus === "PENDING"
-                    ? "결제대기"
-                    : order.orderStatus === "FAILED"
-                    ? "결제실패"
-                    : order.orderStatus}
-                </Typography>
-              </Stack>
-              <Divider sx={{ my: 1 }} />
-              {/* 주문 상품 목록 */}
-              <Stack spacing={1}>
-                {order.items?.map((item, idx) => (
-                  <Stack
-                    key={idx}
-                    direction="row"
-                    alignItems="center"
-                    spacing={2}
+          {orderPages &&
+            orderPages.pages.flatMap((page) => page.content ?? []).length ===
+              0 && (
+              <Typography color="text.secondary">
+                주문 내역이 없습니다.
+              </Typography>
+            )}
+          {orderPages &&
+            orderPages.pages
+              .flatMap((page) => page.content ?? [])
+              .map((order, idx, arr) => {
+                const isLast = idx === arr.length - 1;
+                return (
+                  <Paper
+                    key={order.orderId}
+                    sx={{ p: 2 }}
+                    ref={isLast ? lastOrderRef : undefined}
                   >
-                    <ImageWithFallback
-                      src={item.imageUrl ?? "default-item.png"}
-                      alt={item.itemName ?? ""}
-                      width={56}
-                      height={56}
-                    />
-                    <Box sx={{ flex: 1 }}>
-                      <Typography fontWeight="bold">{item.itemName}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        수량: {item.quantity}
+                    {/* 주문 헤더 */}
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography fontWeight="bold">
+                        {order.orderDate &&
+                          new Date(order.orderDate).toLocaleDateString()}{" "}
+                        {"|"} 주문번호: {order.orderNumber}
                       </Typography>
-                    </Box>
-                    <Typography fontWeight="bold">
-                      {item.totalPrice?.toLocaleString()}원
-                    </Typography>
-                  </Stack>
-                ))}
-              </Stack>
-              <Divider sx={{ my: 1 }} />
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography fontWeight="bold">총 주문금액</Typography>
-                <Typography fontWeight="bold" fontSize={17}>
-                  {order.totalPrice?.toLocaleString()}원
-                </Typography>
-              </Stack>
-            </Paper>
-          ))}
+                      <Typography
+                        color={
+                          order.orderStatus === "PAID"
+                            ? "success"
+                            : order.orderStatus === "COMPLETED"
+                            ? "info"
+                            : order.orderStatus === "CANCELLED"
+                            ? "error"
+                            : "secondary"
+                        }
+                        fontWeight="bold"
+                      >
+                        {order.orderStatus === "PAID"
+                          ? "결제완료"
+                          : order.orderStatus === "COMPLETED"
+                          ? "구매확정"
+                          : order.orderStatus === "CANCELLED"
+                          ? "취소됨"
+                          : order.orderStatus === "PENDING"
+                          ? "결제대기"
+                          : order.orderStatus === "FAILED"
+                          ? "결제실패"
+                          : order.orderStatus}
+                      </Typography>
+                    </Stack>
+                    <Divider sx={{ my: 1 }} />
+                    {/* 주문 상품 목록 */}
+                    <Stack spacing={1}>
+                      {order.items?.map((item, idx) => (
+                        <Stack
+                          key={idx}
+                          direction="row"
+                          alignItems="center"
+                          spacing={2}
+                        >
+                          <ImageWithFallback
+                            src={item.imageUrl ?? "default-item.png"}
+                            alt={item.itemName ?? ""}
+                            width={56}
+                            height={56}
+                          />
+                          <Box sx={{ flex: 1 }}>
+                            <Typography fontWeight="bold">
+                              {item.itemName}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              수량: {item.quantity}
+                            </Typography>
+                          </Box>
+                          <Typography fontWeight="bold">
+                            {item.totalPrice?.toLocaleString()}원
+                          </Typography>
+                        </Stack>
+                      ))}
+                    </Stack>
+                    <Divider sx={{ my: 1 }} />
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      alignItems="center"
+                    >
+                      <Typography fontWeight="bold">총 주문금액</Typography>
+                      <Typography fontWeight="bold" fontSize={17}>
+                        {order.totalPrice?.toLocaleString()}원
+                      </Typography>
+                    </Stack>
+                  </Paper>
+                );
+              })}
+          {isFetchingNextPage && (
+            <Typography color="text.secondary">더 불러오는 중...</Typography>
+          )}
         </Stack>
       </Box>
     </Box>
