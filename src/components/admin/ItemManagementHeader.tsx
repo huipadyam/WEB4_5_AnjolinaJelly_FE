@@ -12,14 +12,23 @@ import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import ClearIcon from "@mui/icons-material/Clear";
 import React, { useState } from "react";
 import ItemAddModal from "./ItemAddModal";
+import { SearchField } from "@/hooks/useItemsWithPagination";
 
 interface ItemManagementHeaderProps {
   onDelete: () => void;
   selectedItemsCount: number;
   onCreateTimeDeal?: () => void;
   onItemAdded?: () => void;
+  searchField: SearchField;
+  searchQuery: string;
+  onSearchFieldChange: (field: SearchField) => void;
+  onSearchQueryChange: (query: string) => void;
+  onSearch: () => void;
+  onClearSearch: () => void;
+  isSearching: boolean;
 }
 
 export default function ItemManagementHeader({
@@ -27,6 +36,13 @@ export default function ItemManagementHeader({
   selectedItemsCount,
   onCreateTimeDeal,
   onItemAdded,
+  searchField,
+  searchQuery,
+  onSearchFieldChange,
+  onSearchQueryChange,
+  onSearch,
+  onClearSearch,
+  isSearching,
 }: ItemManagementHeaderProps) {
   const theme = useTheme();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -52,6 +68,35 @@ export default function ItemManagementHeader({
     }
   };
 
+  // 검색 필드 변경 핸들러
+  const handleSearchFieldChange = (
+    e: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    onSearchFieldChange(e.target.value as SearchField);
+  };
+
+  // 검색어 변경 핸들러
+  const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchQueryChange(e.target.value);
+  };
+
+  // 검색 버튼 클릭 또는 엔터키 핸들러
+  const handleSearch = () => {
+    onSearch();
+  };
+
+  // 검색어 입력 필드에서 엔터키 처리
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // 검색 초기화 핸들러
+  const handleClearSearch = () => {
+    onClearSearch();
+  };
+
   return (
     <>
       <Box
@@ -68,7 +113,8 @@ export default function ItemManagementHeader({
           <TextField
             select
             fullWidth
-            value="상품 이름"
+            value={searchField}
+            onChange={handleSearchFieldChange}
             size="small"
             slotProps={{
               select: {
@@ -91,8 +137,8 @@ export default function ItemManagementHeader({
               },
             }}
           >
-            <option value="상품 이름">상품 이름</option>
-            <option value="상품 아이디">상품 아이디</option>
+            <option value="name">상품 이름</option>
+            <option value="itemId">상품 아이디</option>
           </TextField>
         </Box>
 
@@ -101,10 +147,18 @@ export default function ItemManagementHeader({
           variant="outlined"
           size="small"
           fullWidth
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          onKeyDown={handleKeyDown}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
-                <IconButton>
+                {isSearching ? (
+                  <IconButton onClick={handleClearSearch} size="small">
+                    <ClearIcon />
+                  </IconButton>
+                ) : null}
+                <IconButton onClick={handleSearch} size="small" color="primary">
                   <SearchIcon />
                 </IconButton>
               </InputAdornment>

@@ -21,7 +21,7 @@ import PhotoCamera from "@mui/icons-material/PhotoCamera";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { client } from "@/api/zzirit/client";
 import { alertService } from "./AlertSnackbar";
-import { TypeResponse, BrandResponse } from "@/api/zzirit/models";
+import { TypeFetchResponse, BrandFetchResponse } from "@/api/zzirit/models";
 
 interface ItemAddModalProps {
   open: boolean;
@@ -46,8 +46,8 @@ export default function ItemAddModal({
   const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
 
   // 타입 및 브랜드 목록
-  const [types, setTypes] = useState<TypeResponse[]>([]);
-  const [brands, setBrands] = useState<BrandResponse[]>([]);
+  const [types, setTypes] = useState<TypeFetchResponse[]>([]);
+  const [brands, setBrands] = useState<BrandFetchResponse[]>([]);
 
   // 유효성 검사 상태
   const [errors, setErrors] = useState({
@@ -58,11 +58,14 @@ export default function ItemAddModal({
     brandId: false,
   });
 
+  // 로딩 상태
+  const [isLoading, setIsLoading] = useState(false);
+
   // 타입 목록 로드
   useEffect(() => {
     const fetchTypes = async () => {
       try {
-        const response = await client.findType();
+        const response = await client.api.findType();
         if (response.result) {
           setTypes(response.result);
         }
@@ -81,7 +84,7 @@ export default function ItemAddModal({
       if (typeId === "") return;
 
       try {
-        const response = await client.findBrandByType({
+        const response = await client.api.findBrandByType({
           typeId: typeId as number,
         });
         if (response.result) {
@@ -175,53 +178,42 @@ export default function ItemAddModal({
     }
 
     try {
-      // 상품 등록
-      const response = await client.addItem({
+      setIsLoading(true);
+
+      // 이미지가 있으면 먼저 업로드
+      let imageUrl = "";
+      if (images.length > 0) {
+        try {
+          // 이미지 업로드
+          const imageResponse = await client.api.uploadImage({
+            updateImageRequest: {
+              image: images[0],
+            },
+          });
+
+          // 응답에서 이미지 URL 추출
+          if (imageResponse.result && imageResponse.result.imageUrl) {
+            imageUrl = imageResponse.result.imageUrl;
+          }
+        } catch (imageError) {
+          console.error("이미지 업로드 실패:", imageError);
+          alertService.showAlert("이미지 업로드에 실패했습니다.", "error");
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // 상품 등록 (업로드된 이미지 URL 사용)
+      await client.api.createItem({
         itemCreateRequest: {
           name,
           stockQuantity: stockQuantity as number,
           price: price as number,
           typeId: typeId as number,
           brandId: brandId as number,
+          imageUrl: imageUrl, // 업로드된 이미지 URL 사용
         },
       });
-
-      // 등록된 상품 ID 확인 (Mock API에서는 상품 ID를 응답에 추가해야 함)
-      // 실제 API에서는 응답에서 상품 ID를 가져와야 합니다
-      let itemId: number | undefined;
-
-      if (response.result && typeof response.result === "object") {
-        const { itemId: responseItemId } = response.result as {
-          itemId?: number;
-        };
-        if (responseItemId) {
-          itemId = responseItemId;
-        }
-      }
-
-      // 이미지 업로드 (등록된 이미지가 있을 경우)
-      if (images.length > 0 && itemId !== undefined) {
-        for (let i = 0; i < images.length; i++) {
-          try {
-            // API에 맞게 이미지 파일을 전달
-            await client.uploadImage({
-              itemId,
-              uploadImageRequest: {
-                image: images[i],
-              },
-            });
-          } catch (imageError) {
-            console.error(`이미지 ${i + 1} 업로드 실패:`, imageError);
-            // 이미지 업로드 실패해도 계속 진행
-          }
-        }
-      } else if (images.length > 0 && itemId === undefined) {
-        console.warn("상품 ID를 받지 못해 이미지 업로드를 건너뜁니다.");
-        alertService.showAlert(
-          "상품은 등록되었으나 이미지 업로드에 실패했습니다.",
-          "warning"
-        );
-      }
 
       alertService.showAlert("상품이 성공적으로 등록되었습니다.", "success");
       resetForm();
@@ -230,6 +222,8 @@ export default function ItemAddModal({
     } catch (error) {
       console.error("상품 등록 실패:", error);
       alertService.showAlert("상품 등록에 실패했습니다.", "error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -463,7 +457,12 @@ export default function ItemAddModal({
         <Button onClick={onClose} variant="outlined" color="inherit">
           취소
         </Button>
-        <Button onClick={handleSubmit} variant="contained" color="primary">
+        <Button
+          onClick={handleSubmit}
+          variant="contained"
+          color="primary"
+          disabled={isLoading}
+        >
           등록하기
         </Button>
       </DialogActions>

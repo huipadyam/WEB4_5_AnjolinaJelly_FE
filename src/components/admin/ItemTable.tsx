@@ -11,6 +11,7 @@ import {
   Checkbox,
   useTheme,
   CircularProgress,
+  Typography,
 } from "@mui/material";
 import { Item } from "@/types/admin";
 import { useState } from "react";
@@ -42,6 +43,8 @@ interface ItemTableProps {
   onSelectOne: (id: number) => void;
   onUpdateItem?: (itemData: UpdateItemRequest) => Promise<void>;
   loading?: boolean;
+  isPageChanging?: boolean;
+  isSearching?: boolean;
 }
 
 export default function ItemTable({
@@ -51,6 +54,8 @@ export default function ItemTable({
   onSelectOne,
   onUpdateItem,
   loading = false,
+  isPageChanging = false,
+  isSearching = false,
 }: ItemTableProps) {
   const theme = useTheme();
   const [editItem, setEditItem] = useState<Item | null>(null);
@@ -78,17 +83,43 @@ export default function ItemTable({
     }
   };
 
-  if (loading) {
+  if (loading && !isPageChanging) {
     return (
       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
           py: 10,
+          height: "300px",
         }}
       >
-        <CircularProgress />
+        <CircularProgress size={40} />
+        <Typography variant="body1" mt={2}>
+          상품 목록을 불러오는 중...
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "300px",
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="body1" color="textSecondary">
+          {isSearching
+            ? "검색 결과가 존재하지 않습니다. 다른 검색어를 입력해보세요."
+            : "표시할 상품이 없습니다."}
+        </Typography>
       </Box>
     );
   }
@@ -100,8 +131,27 @@ export default function ItemTable({
           borderRadius: 2,
           overflow: "hidden",
           boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+          position: "relative",
         }}
       >
+        {isPageChanging && (
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "rgba(255,255,255,0.7)",
+              zIndex: 10,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <CircularProgress size={36} />
+          </Box>
+        )}
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: theme.palette.primary.main }}>

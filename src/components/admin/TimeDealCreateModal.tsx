@@ -25,10 +25,10 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ko } from "date-fns/locale";
-import { TimeDealModalItem } from "@/api/zzirit/models";
 import { client } from "@/api/zzirit/client";
 import { alertService } from "@/components/admin/AlertSnackbar";
 import { Item } from "@/types/admin";
+import { TimeDealCreateRequest } from "@/api/zzirit/models";
 
 interface TimeDealCreateModalProps {
   open: boolean;
@@ -36,7 +36,10 @@ interface TimeDealCreateModalProps {
   selectedItems?: Item[];
 }
 
-interface SelectedItem extends TimeDealModalItem {
+interface SelectedItem {
+  itemId: number;
+  itemName: string;
+  originalPrice: number;
   quantity: number;
   stockQuantity?: number; // 재고 수량 추가
 }
@@ -151,9 +154,9 @@ export default function TimeDealCreateModal({
       // 전송할 데이터 구성
       const requestBody = {
         title: title,
-        startTime: startTime?.toISOString(),
-        endTime: endTime?.toISOString(),
-        discountRate: parseFloat(discountRate) || 0,
+        startTime: startTime,
+        endTime: endTime,
+        discountRatio: parseFloat(discountRate) || 0,
         items: items.map((item) => ({
           itemId: item.itemId,
           quantity: item.quantity,
@@ -161,8 +164,8 @@ export default function TimeDealCreateModal({
       };
 
       // API 호출
-      await client.createTimeDeal({
-        requestBody: requestBody as unknown as { [key: string]: object },
+      await client.api.createTimeDeal({
+        timeDealCreateRequest: requestBody as TimeDealCreateRequest,
       });
 
       alertService.showAlert("타임딜이 성공적으로 생성되었습니다.", "success");

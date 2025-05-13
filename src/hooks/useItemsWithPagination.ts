@@ -1,16 +1,19 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { client } from "@/api/zzirit/client";
+import { Item } from "@/types/admin";
 import {
-  Item,
-  ApiProduct,
-  PaginationResponse,
-  ApiResponse,
-} from "@/types/admin";
+  AdminItemFetchResponse,
+  BaseResponsePageResponseAdminItemFetchResponse,
+} from "@/api/zzirit/models";
 
-// UpdateItemRequest 타입 정의
+// 내부 인터페이스 정의
 interface UpdateItemRequest {
   itemId: number;
-  itemCreateRequest: {
+  itemUpdateRequest?: {
+    stockQuantity?: number;
+    price?: number;
+  };
+  itemCreateRequest?: {
     name?: string;
     stockQuantity?: number;
     price?: number;
@@ -19,18 +22,51 @@ interface UpdateItemRequest {
   };
 }
 
+// 검색 옵션 타입 정의
+export type SearchField = "name" | "itemId";
+
 export function useItemsWithPagination(initialPage = 1) {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isPageChanging, setIsPageChanging] = useState(false);
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [totalPages, setTotalPages] = useState(3);
   const [error, setError] = useState<Error | null>(null);
   const [selectAll, setSelectAll] = useState(false);
 
+  // 검색 관련 상태
+  const [searchField, setSearchField] = useState<SearchField>("name");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeSearchQuery, setActiveSearchQuery] = useState("");
+  const [activeSearchField, setActiveSearchField] =
+    useState<SearchField>("name");
+
   const updateItem = async (itemData: UpdateItemRequest): Promise<void> => {
     try {
-      // API 호출
-      await client.updateItem(itemData);
+      // 전달된 데이터 구조에 따라 API 호출 형식 분기 처리
+      if (itemData.itemUpdateRequest) {
+        // 기존 형식: { itemId, itemUpdateRequest: { ... } }
+        await client.api.updateItem({
+          itemId: itemData.itemId,
+          itemUpdateRequest: {
+            stockQuantity: itemData.itemUpdateRequest.stockQuantity,
+            price: itemData.itemUpdateRequest.price,
+          },
+        });
+      } else if (itemData.itemCreateRequest) {
+        // ItemEditModal에서 전달하는 형식: { itemId, itemCreateRequest: { ... } }
+        await client.api.updateItem({
+          itemId: itemData.itemId,
+          itemUpdateRequest: {
+            stockQuantity: itemData.itemCreateRequest.stockQuantity,
+            price: itemData.itemCreateRequest.price,
+          },
+        });
+      } else {
+        console.error("지원되지 않는 데이터 형식:", itemData);
+        throw new Error("지원되지 않는 데이터 형식");
+      }
 
       fetchItems();
     } catch (error) {
@@ -39,31 +75,48 @@ export function useItemsWithPagination(initialPage = 1) {
     }
   };
 
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     try {
-      setLoading(true);
+      if (items.length > 0) {
+        setIsPageChanging(true);
+      } else {
+        setLoading(true);
+      }
       setError(null);
 
-      const response = await client.getItems(currentPage);
-      const data = (await response.json()) as ApiResponse<
-        PaginationResponse<ApiProduct>
-      >;
+      // 검색 파라미터 설정
+      const params = {
+        page: currentPage - 1, // API는 0부터 시작하는 페이지 인덱스 사용
+        size: 10,
+      } as Record<string, string | number>;
 
-      if (data.success && data.result) {
-        const apiItems = data.result.content.map((item: ApiProduct) => ({
-          id: item.id,
-          image: item.imageUrl,
-          name: item.name,
-          itemNumber: item.id,
-          stock: item.stockQuantity,
-          category: item.type,
-          brand: item.brand,
-          price: item.price,
-          selected: false,
-        }));
+      // 검색어가 있는 경우 검색 필드에 따라 파라미터 추가
+      if (activeSearchQuery) {
+        params[activeSearchField] = activeSearchQuery;
+      }
+
+      // APIApi 클라이언트 사용
+      const response: BaseResponsePageResponseAdminItemFetchResponse =
+        await client.api.getItems(params);
+
+      if (response.success && response.result) {
+        const apiItems =
+          response.result.content?.map((item: AdminItemFetchResponse) => ({
+            id: item.id || 0,
+            image: item.imageUrl || "",
+            name: item.name || "",
+            itemNumber: item.id || 0,
+            stock: item.stockQuantity || 0,
+            category: item.type || "",
+            brand: item.brand || "",
+            price: item.price || 0,
+            selected: false,
+          })) || [];
 
         setItems(apiItems);
-        setTotalPages(data.result.totalPages);
+        if (response.result.totalPages !== undefined) {
+          setTotalPages(response.result.totalPages);
+        }
       }
     } catch (err) {
       setError(
@@ -74,15 +127,42 @@ export function useItemsWithPagination(initialPage = 1) {
       console.error("상품 데이터를 불러오는 데 실패했습니다:", err);
     } finally {
       setLoading(false);
+      setIsPageChanging(false);
     }
-  };
+  }, [currentPage, activeSearchField, activeSearchQuery]);
 
   useEffect(() => {
     fetchItems();
-  }, [currentPage]);
+  }, [fetchItems]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // 검색 필드 변경 핸들러
+  const handleSearchFieldChange = (field: SearchField) => {
+    setSearchField(field);
+  };
+
+  // 검색어 변경 핸들러
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  // 검색 실행 핸들러
+  const handleSearch = () => {
+    setActiveSearchField(searchField);
+    setActiveSearchQuery(searchQuery);
+    setIsSearching(!!searchQuery);
+    setCurrentPage(1); // 검색 시 항상 1페이지부터 시작
+  };
+
+  // 검색 초기화 핸들러
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setActiveSearchQuery("");
+    setIsSearching(false);
+    setCurrentPage(1);
   };
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -122,7 +202,7 @@ export function useItemsWithPagination(initialPage = 1) {
 
       // 각 아이템을 순차적으로 삭제
       for (const itemId of selectedItemIds) {
-        await client.deleteItem({ itemId });
+        await client.api.deleteItem({ itemId });
       }
 
       // 삭제 후 아이템 리스트 새로고침
@@ -147,13 +227,21 @@ export function useItemsWithPagination(initialPage = 1) {
   return {
     items,
     loading,
+    isPageChanging,
     error,
     currentPage,
     totalPages,
     selectAll,
+    searchField,
+    searchQuery,
+    isSearching,
     handlePageChange,
     handleSelectAll,
     handleSelectOne,
+    handleSearchFieldChange,
+    handleSearchQueryChange,
+    handleSearch,
+    handleClearSearch,
     updateItem,
     deleteSelectedItems,
     getSelectedItems,

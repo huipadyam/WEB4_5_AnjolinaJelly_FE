@@ -11,9 +11,17 @@ export default function TimeDealManagementTab() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const {
     timeDeals,
+    loading,
     currentPage: timeDealsCurrentPage,
     totalPages: timeDealsTotalPages,
+    searchField,
+    searchQuery,
+    isSearching,
     handlePageChange: handleTimeDealsPageChange,
+    handleSearchFieldChange,
+    handleSearchQueryChange,
+    handleSearch,
+    handleClearSearch,
   } = useTimeDealsWithPagination();
 
   const toggleExpand = (dealId: number) => {
@@ -30,12 +38,21 @@ export default function TimeDealManagementTab() {
       <TimeDealManagementHeader
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
+        searchField={searchField}
+        searchQuery={searchQuery}
+        onSearchFieldChange={handleSearchFieldChange}
+        onSearchQueryChange={handleSearchQueryChange}
+        onSearch={handleSearch}
+        onClearSearch={handleClearSearch}
+        isSearching={isSearching}
       />
 
       <TimeDealTable
         timeDeals={filteredTimeDeals}
         expandedDealId={expandedDealId}
         toggleExpand={toggleExpand}
+        loading={loading}
+        isSearching={isSearching}
       />
 
       <Pagination
