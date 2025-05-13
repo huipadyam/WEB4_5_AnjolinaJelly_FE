@@ -52,28 +52,50 @@ export default function SignIn() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        "https://api.zzirit.shop/api/auth/basic/login",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            username: data.email,
-            password: data.password,
-          }),
-        }
-      );
-      const result = await response.json();
-      console.log(result);
-      if (response.ok) {
-        alertService.showAlert("로그인에 성공했습니다!", "success");
-        router.push("/");
-      } else {
-        alertService.showAlert(
-          result?.message || "로그인에 실패했습니다.",
-          "error"
+      // API 클라이언트를 사용하여 로그인 요청
+      try {
+        console.log("로그인 시도:", { email: data.email });
+
+        // fetch API를 직접 사용하여 로그인 요청
+        const response = await fetch(
+          "https://api.zzirit.shop/api/auth/basic/login",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              username: data.email,
+              password: data.password,
+            }),
+            credentials: "include", // 쿠키 포함
+          }
         );
+
+        // 응답 로깅
+        console.log("로그인 응답 상태:", response.status);
+        console.log("로그인 응답 헤더:", response.headers);
+
+        // 성공 응답 확인 (상태 코드 2xx)
+        if (response.ok) {
+          console.log("로그인 성공!");
+
+          alertService.showAlert("로그인에 성공했습니다!", "success");
+          router.push("/");
+        } else {
+          // 실패 응답 처리
+          console.error("로그인 실패:", response.status);
+          alertService.showAlert(
+            "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.",
+            "error"
+          );
+        }
+      } catch (apiError) {
+        console.error("API 호출 오류:", apiError);
+        alertService.showAlert("서버 연결에 실패했습니다.", "error");
       }
     } catch (error) {
+      console.error("전체 로그인 프로세스 오류:", error);
       let message = "로그인에 실패했습니다. 다시 시도해주세요.";
       if (error instanceof Error) {
         message = error.message;

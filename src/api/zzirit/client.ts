@@ -3,7 +3,7 @@ import { APIApi } from "./apis/APIApi";
 import { Configuration } from "./runtime";
 
 const config = new Configuration({
-  // 필요시 basePath, accessToken 등 환경변수로 전달
+  credentials: "include",
 });
 
 class Client {
