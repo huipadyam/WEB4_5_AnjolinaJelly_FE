@@ -15,57 +15,54 @@
 
 import * as runtime from '../runtime';
 import type {
-  BaseResponseCartItemResponse,
-  BaseResponseCartResponse,
-  BaseResponseCurrentTimeDealResponse,
+  BaseResponseCartFetchResponse,
+  BaseResponseCartItemFetchResponse,
   BaseResponseEmpty,
   BaseResponseImageUploadResponse,
-  BaseResponseItemResponse,
-  BaseResponseListBrandResponse,
-  BaseResponseListOrderFetchResponse,
-  BaseResponseListTimeDealModalCreateResponse,
-  BaseResponseListTypeResponse,
-  BaseResponsePageResponseAdminItemResponse,
-  BaseResponsePageResponseSimpleItemResponse,
-  BaseResponsePageResponseTimeDealSearchResponse,
+  BaseResponseItemFetchResponse,
+  BaseResponseListBrandFetchResponse,
+  BaseResponseListTypeFetchResponse,
+  BaseResponsePageResponseAdminItemFetchResponse,
+  BaseResponsePageResponseCurrentTimeDealFetchResponse,
+  BaseResponsePageResponseOrderFetchResponse,
+  BaseResponsePageResponseSimpleItemFetchResponse,
+  BaseResponsePageResponseTimeDealFetchResponse,
   BaseResponseTimeDealCreateResponse,
-  CartItemAddRequest,
+  CartItemCreateRequest,
   ItemCreateRequest,
   ItemUpdateRequest,
   TimeDealCreateRequest,
   UpdateImageRequest,
 } from '../models/index';
 import {
-    BaseResponseCartItemResponseFromJSON,
-    BaseResponseCartItemResponseToJSON,
-    BaseResponseCartResponseFromJSON,
-    BaseResponseCartResponseToJSON,
-    BaseResponseCurrentTimeDealResponseFromJSON,
-    BaseResponseCurrentTimeDealResponseToJSON,
+    BaseResponseCartFetchResponseFromJSON,
+    BaseResponseCartFetchResponseToJSON,
+    BaseResponseCartItemFetchResponseFromJSON,
+    BaseResponseCartItemFetchResponseToJSON,
     BaseResponseEmptyFromJSON,
     BaseResponseEmptyToJSON,
     BaseResponseImageUploadResponseFromJSON,
     BaseResponseImageUploadResponseToJSON,
-    BaseResponseItemResponseFromJSON,
-    BaseResponseItemResponseToJSON,
-    BaseResponseListBrandResponseFromJSON,
-    BaseResponseListBrandResponseToJSON,
-    BaseResponseListOrderFetchResponseFromJSON,
-    BaseResponseListOrderFetchResponseToJSON,
-    BaseResponseListTimeDealModalCreateResponseFromJSON,
-    BaseResponseListTimeDealModalCreateResponseToJSON,
-    BaseResponseListTypeResponseFromJSON,
-    BaseResponseListTypeResponseToJSON,
-    BaseResponsePageResponseAdminItemResponseFromJSON,
-    BaseResponsePageResponseAdminItemResponseToJSON,
-    BaseResponsePageResponseSimpleItemResponseFromJSON,
-    BaseResponsePageResponseSimpleItemResponseToJSON,
-    BaseResponsePageResponseTimeDealSearchResponseFromJSON,
-    BaseResponsePageResponseTimeDealSearchResponseToJSON,
+    BaseResponseItemFetchResponseFromJSON,
+    BaseResponseItemFetchResponseToJSON,
+    BaseResponseListBrandFetchResponseFromJSON,
+    BaseResponseListBrandFetchResponseToJSON,
+    BaseResponseListTypeFetchResponseFromJSON,
+    BaseResponseListTypeFetchResponseToJSON,
+    BaseResponsePageResponseAdminItemFetchResponseFromJSON,
+    BaseResponsePageResponseAdminItemFetchResponseToJSON,
+    BaseResponsePageResponseCurrentTimeDealFetchResponseFromJSON,
+    BaseResponsePageResponseCurrentTimeDealFetchResponseToJSON,
+    BaseResponsePageResponseOrderFetchResponseFromJSON,
+    BaseResponsePageResponseOrderFetchResponseToJSON,
+    BaseResponsePageResponseSimpleItemFetchResponseFromJSON,
+    BaseResponsePageResponseSimpleItemFetchResponseToJSON,
+    BaseResponsePageResponseTimeDealFetchResponseFromJSON,
+    BaseResponsePageResponseTimeDealFetchResponseToJSON,
     BaseResponseTimeDealCreateResponseFromJSON,
     BaseResponseTimeDealCreateResponseToJSON,
-    CartItemAddRequestFromJSON,
-    CartItemAddRequestToJSON,
+    CartItemCreateRequestFromJSON,
+    CartItemCreateRequestToJSON,
     ItemCreateRequestFromJSON,
     ItemCreateRequestToJSON,
     ItemUpdateRequestFromJSON,
@@ -77,7 +74,7 @@ import {
 } from '../models/index';
 
 export interface AddItemToCartRequest {
-    cartItemAddRequest: CartItemAddRequest;
+    cartItemCreateRequest: CartItemCreateRequest;
 }
 
 export interface CancelOrderRequest {
@@ -100,6 +97,11 @@ export interface DeleteItemRequest {
     itemId: number;
 }
 
+export interface FetchAllOrdersRequest {
+    page?: number;
+    size?: number;
+}
+
 export interface FindBrandByTypeRequest {
     typeId: number;
 }
@@ -108,15 +110,16 @@ export interface GetByIdRequest {
     itemId: number;
 }
 
+export interface GetCurrentTimeDealsRequest {
+    page?: number;
+    size?: number;
+}
+
 export interface GetItemsRequest {
     name?: string;
     itemId?: number;
     page?: number;
     size?: number;
-}
-
-export interface GetTimeDealModalItemsRequest {
-    requestBody: Array<number>;
 }
 
 export interface IncreaseQuantityRequest {
@@ -128,7 +131,7 @@ export interface RemoveItemToCartRequest {
 }
 
 export interface SearchRequest {
-    type?: Array<string>;
+    types?: Array<string>;
     brands?: Array<string>;
     keyword?: string;
     sort?: string;
@@ -169,11 +172,11 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.
      * 장바구니에 상품 추가
      */
-    async addItemToCartRaw(requestParameters: AddItemToCartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartItemResponse>> {
-        if (requestParameters['cartItemAddRequest'] == null) {
+    async addItemToCartRaw(requestParameters: AddItemToCartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartItemFetchResponse>> {
+        if (requestParameters['cartItemCreateRequest'] == null) {
             throw new runtime.RequiredError(
-                'cartItemAddRequest',
-                'Required parameter "cartItemAddRequest" was null or undefined when calling addItemToCart().'
+                'cartItemCreateRequest',
+                'Required parameter "cartItemCreateRequest" was null or undefined when calling addItemToCart().'
             );
         }
 
@@ -196,17 +199,17 @@ export class APIApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CartItemAddRequestToJSON(requestParameters['cartItemAddRequest']),
+            body: CartItemCreateRequestToJSON(requestParameters['cartItemCreateRequest']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartItemResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품 ID와 수량을 전달받아 장바구니에 항목을 추가합니다.
      * 장바구니에 상품 추가
      */
-    async addItemToCart(requestParameters: AddItemToCartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartItemResponse> {
+    async addItemToCart(requestParameters: AddItemToCartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartItemFetchResponse> {
         const response = await this.addItemToCartRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -347,10 +350,10 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * -1 수량 감소
+     * 수량 1 감소
      * 장바구니 상품 수량 감소
      */
-    async decreaseQuantityRaw(requestParameters: DecreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartResponse>> {
+    async decreaseQuantityRaw(requestParameters: DecreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartItemFetchResponse>> {
         if (requestParameters['itemId'] == null) {
             throw new runtime.RequiredError(
                 'itemId',
@@ -371,20 +374,20 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/cart/items/{itemId}/decrease`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/cart/items/{item-id}/decrease`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
-     * -1 수량 감소
+     * 수량 1 감소
      * 장바구니 상품 수량 감소
      */
-    async decreaseQuantity(requestParameters: DecreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartResponse> {
+    async decreaseQuantity(requestParameters: DecreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartItemFetchResponse> {
         const response = await this.decreaseQuantityRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -433,11 +436,19 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 전체 주문을 조회합니다.
+     * 전체 주문을 페이징 처리하여 최신순으로 조회합니다.
      * 주문 전체 조회 API
      */
-    async fetchAllOrdersRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListOrderFetchResponse>> {
+    async fetchAllOrdersRaw(requestParameters: FetchAllOrdersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseOrderFetchResponse>> {
         const queryParameters: any = {};
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -456,15 +467,15 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListOrderFetchResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseOrderFetchResponseFromJSON(jsonValue));
     }
 
     /**
-     * 전체 주문을 조회합니다.
+     * 전체 주문을 페이징 처리하여 최신순으로 조회합니다.
      * 주문 전체 조회 API
      */
-    async fetchAllOrders(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListOrderFetchResponse> {
-        const response = await this.fetchAllOrdersRaw(initOverrides);
+    async fetchAllOrders(requestParameters: FetchAllOrdersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseOrderFetchResponse> {
+        const response = await this.fetchAllOrdersRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -472,7 +483,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 종류 Id에 맞는 브랜드를 조회합니다.
      * 상품 종류에 따른 브랜드 조회
      */
-    async findBrandByTypeRaw(requestParameters: FindBrandByTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListBrandResponse>> {
+    async findBrandByTypeRaw(requestParameters: FindBrandByTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListBrandFetchResponse>> {
         if (requestParameters['typeId'] == null) {
             throw new runtime.RequiredError(
                 'typeId',
@@ -499,14 +510,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListBrandResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListBrandFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품 종류 Id에 맞는 브랜드를 조회합니다.
      * 상품 종류에 따른 브랜드 조회
      */
-    async findBrandByType(requestParameters: FindBrandByTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListBrandResponse> {
+    async findBrandByType(requestParameters: FindBrandByTypeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListBrandFetchResponse> {
         const response = await this.findBrandByTypeRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -515,7 +526,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 종류를 전체 조회 합니다.
      * 상품 종류 전체 조회
      */
-    async findTypeRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListTypeResponse>> {
+    async findTypeRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListTypeFetchResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -535,14 +546,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListTypeResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListTypeFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품 종류를 전체 조회 합니다.
      * 상품 종류 전체 조회
      */
-    async findType(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListTypeResponse> {
+    async findType(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListTypeFetchResponse> {
         const response = await this.findTypeRaw(initOverrides);
         return await response.value();
     }
@@ -551,7 +562,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품을 상세 조회 합니다.
      * 상품 상세 조회
      */
-    async getByIdRaw(requestParameters: GetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseItemResponse>> {
+    async getByIdRaw(requestParameters: GetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseItemFetchResponse>> {
         if (requestParameters['itemId'] == null) {
             throw new runtime.RequiredError(
                 'itemId',
@@ -578,14 +589,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseItemResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품을 상세 조회 합니다.
      * 상품 상세 조회
      */
-    async getById(requestParameters: GetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseItemResponse> {
+    async getById(requestParameters: GetByIdRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseItemFetchResponse> {
         const response = await this.getByIdRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -594,8 +605,16 @@ export class APIApi extends runtime.BaseAPI {
      * 현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.
      * 현재 진행 중인 타임딜
      */
-    async getCurrentTimeDealsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCurrentTimeDealResponse>> {
+    async getCurrentTimeDealsRaw(requestParameters: GetCurrentTimeDealsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseCurrentTimeDealFetchResponse>> {
         const queryParameters: any = {};
+
+        if (requestParameters['page'] != null) {
+            queryParameters['page'] = requestParameters['page'];
+        }
+
+        if (requestParameters['size'] != null) {
+            queryParameters['size'] = requestParameters['size'];
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -608,21 +627,21 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/time-deals/now`,
+            path: `/api/items/time-deals/now`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCurrentTimeDealResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseCurrentTimeDealFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 현재 진행중인 타임딜 및 타임딜 상품을 조회합니다.
      * 현재 진행 중인 타임딜
      */
-    async getCurrentTimeDeals(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCurrentTimeDealResponse> {
-        const response = await this.getCurrentTimeDealsRaw(initOverrides);
+    async getCurrentTimeDeals(requestParameters: GetCurrentTimeDealsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseCurrentTimeDealFetchResponse> {
+        const response = await this.getCurrentTimeDealsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -630,7 +649,7 @@ export class APIApi extends runtime.BaseAPI {
      * 관리자가 id/이름으로 상품 목록을 조회합니다.
      * 관리자 상품 조회 & 검색
      */
-    async getItemsRaw(requestParameters: GetItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseAdminItemResponse>> {
+    async getItemsRaw(requestParameters: GetItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseAdminItemFetchResponse>> {
         const queryParameters: any = {};
 
         if (requestParameters['name'] != null) {
@@ -666,14 +685,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseAdminItemResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseAdminItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 관리자가 id/이름으로 상품 목록을 조회합니다.
      * 관리자 상품 조회 & 검색
      */
-    async getItems(requestParameters: GetItemsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseAdminItemResponse> {
+    async getItems(requestParameters: GetItemsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseAdminItemFetchResponse> {
         const response = await this.getItemsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -682,7 +701,7 @@ export class APIApi extends runtime.BaseAPI {
      * 현재 로그인된 사용자의 장바구니를 조회합니다.
      * 내 장바구니 조회
      */
-    async getMyCartRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartResponse>> {
+    async getMyCartRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartFetchResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -702,69 +721,23 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 현재 로그인된 사용자의 장바구니를 조회합니다.
      * 내 장바구니 조회
      */
-    async getMyCart(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartResponse> {
+    async getMyCart(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartFetchResponse> {
         const response = await this.getMyCartRaw(initOverrides);
         return await response.value();
     }
 
     /**
-     * 타임딜 저장을 위한 모달을 생성합니다
-     * 타임딜 생성 모달 상품 조회
-     */
-    async getTimeDealModalItemsRaw(requestParameters: GetTimeDealModalItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseListTimeDealModalCreateResponse>> {
-        if (requestParameters['requestBody'] == null) {
-            throw new runtime.RequiredError(
-                'requestBody',
-                'Required parameter "requestBody" was null or undefined when calling getTimeDealModalItems().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("bearer", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/api/admin/time-deals/modal`,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: requestParameters['requestBody'],
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseListTimeDealModalCreateResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * 타임딜 저장을 위한 모달을 생성합니다
-     * 타임딜 생성 모달 상품 조회
-     */
-    async getTimeDealModalItems(requestParameters: GetTimeDealModalItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseListTimeDealModalCreateResponse> {
-        const response = await this.getTimeDealModalItemsRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * +1 수량 증가
+     * 수량 1 증가
      * 장바구니 상품 수량 증가
      */
-    async increaseQuantityRaw(requestParameters: IncreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartResponse>> {
+    async increaseQuantityRaw(requestParameters: IncreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseCartItemFetchResponse>> {
         if (requestParameters['itemId'] == null) {
             throw new runtime.RequiredError(
                 'itemId',
@@ -785,20 +758,20 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/cart/items/{itemId}/increase`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/cart/items/{item-id}/increase`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseCartItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
-     * +1 수량 증가
+     * 수량 1 증가
      * 장바구니 상품 수량 증가
      */
-    async increaseQuantity(requestParameters: IncreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartResponse> {
+    async increaseQuantity(requestParameters: IncreaseQuantityRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseCartItemFetchResponse> {
         const response = await this.increaseQuantityRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -828,7 +801,7 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/cart/items/{itemId}`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/cart/items/{item-id}`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -850,11 +823,11 @@ export class APIApi extends runtime.BaseAPI {
      * 상품을 조회하고 검색합니다.
      * 상품 조회 및 검색
      */
-    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseSimpleItemResponse>> {
+    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseSimpleItemFetchResponse>> {
         const queryParameters: any = {};
 
-        if (requestParameters['type'] != null) {
-            queryParameters['type'] = requestParameters['type'];
+        if (requestParameters['types'] != null) {
+            queryParameters['types'] = requestParameters['types'];
         }
 
         if (requestParameters['brands'] != null) {
@@ -894,14 +867,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseSimpleItemResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseSimpleItemFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품을 조회하고 검색합니다.
      * 상품 조회 및 검색
      */
-    async search(requestParameters: SearchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseSimpleItemResponse> {
+    async search(requestParameters: SearchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseSimpleItemFetchResponse> {
         const response = await this.searchRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -910,7 +883,7 @@ export class APIApi extends runtime.BaseAPI {
      * 관리자 페이지에서 타임딜 목록을 조회합니다.
      * (관리자 페이지)타임딜 목록 조회
      */
-    async searchTimeDealsRaw(requestParameters: SearchTimeDealsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseTimeDealSearchResponse>> {
+    async searchTimeDealsRaw(requestParameters: SearchTimeDealsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseTimeDealFetchResponse>> {
         const queryParameters: any = {};
 
         if (requestParameters['timeDealName'] != null) {
@@ -958,14 +931,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseTimeDealSearchResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseTimeDealFetchResponseFromJSON(jsonValue));
     }
 
     /**
      * 관리자 페이지에서 타임딜 목록을 조회합니다.
      * (관리자 페이지)타임딜 목록 조회
      */
-    async searchTimeDeals(requestParameters: SearchTimeDealsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseTimeDealSearchResponse> {
+    async searchTimeDeals(requestParameters: SearchTimeDealsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseTimeDealFetchResponse> {
         const response = await this.searchTimeDealsRaw(requestParameters, initOverrides);
         return await response.value();
     }

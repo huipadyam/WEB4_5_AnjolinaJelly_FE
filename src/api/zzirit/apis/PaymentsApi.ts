@@ -17,15 +17,15 @@ import * as runtime from '../runtime';
 import type {
   BaseResponseEmpty,
   BaseResponseString,
-  PaymentRequestDto,
+  PaymentRequest,
 } from '../models/index';
 import {
     BaseResponseEmptyFromJSON,
     BaseResponseEmptyToJSON,
     BaseResponseStringFromJSON,
     BaseResponseStringToJSON,
-    PaymentRequestDtoFromJSON,
-    PaymentRequestDtoToJSON,
+    PaymentRequestFromJSON,
+    PaymentRequestToJSON,
 } from '../models/index';
 
 export interface ConfirmPaymentRequest {
@@ -41,7 +41,7 @@ export interface FailPaymentRequest {
 }
 
 export interface InitOrderRequest {
-    paymentRequestDto: PaymentRequestDto;
+    paymentRequest: PaymentRequest;
 }
 
 /**
@@ -171,10 +171,10 @@ export class PaymentsApi extends runtime.BaseAPI {
      * 주문번호 생성
      */
     async initOrderRaw(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseString>> {
-        if (requestParameters['paymentRequestDto'] == null) {
+        if (requestParameters['paymentRequest'] == null) {
             throw new runtime.RequiredError(
-                'paymentRequestDto',
-                'Required parameter "paymentRequestDto" was null or undefined when calling initOrder().'
+                'paymentRequest',
+                'Required parameter "paymentRequest" was null or undefined when calling initOrder().'
             );
         }
 
@@ -197,7 +197,7 @@ export class PaymentsApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PaymentRequestDtoToJSON(requestParameters['paymentRequestDto']),
+            body: PaymentRequestToJSON(requestParameters['paymentRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseStringFromJSON(jsonValue));

@@ -15,49 +15,49 @@
 
 import * as runtime from '../runtime';
 import type {
+  AddressUpdateRequest,
   BaseResponseEmpty,
-  BaseResponseMyPageInfoDTO,
-  EmailAuthDTO,
-  EmailAuthVerificationDTO,
-  MyPageAddressUpdateDTO,
-  SignupDTO,
-  SocialSignupDTO,
+  BaseResponseMyPageInfoResponse,
+  EmailAuthRequest,
+  EmailAuthVerifyRequest,
+  SignupRequest,
+  SocialSignupRequest,
 } from '../models/index';
 import {
+    AddressUpdateRequestFromJSON,
+    AddressUpdateRequestToJSON,
     BaseResponseEmptyFromJSON,
     BaseResponseEmptyToJSON,
-    BaseResponseMyPageInfoDTOFromJSON,
-    BaseResponseMyPageInfoDTOToJSON,
-    EmailAuthDTOFromJSON,
-    EmailAuthDTOToJSON,
-    EmailAuthVerificationDTOFromJSON,
-    EmailAuthVerificationDTOToJSON,
-    MyPageAddressUpdateDTOFromJSON,
-    MyPageAddressUpdateDTOToJSON,
-    SignupDTOFromJSON,
-    SignupDTOToJSON,
-    SocialSignupDTOFromJSON,
-    SocialSignupDTOToJSON,
+    BaseResponseMyPageInfoResponseFromJSON,
+    BaseResponseMyPageInfoResponseToJSON,
+    EmailAuthRequestFromJSON,
+    EmailAuthRequestToJSON,
+    EmailAuthVerifyRequestFromJSON,
+    EmailAuthVerifyRequestToJSON,
+    SignupRequestFromJSON,
+    SignupRequestToJSON,
+    SocialSignupRequestFromJSON,
+    SocialSignupRequestToJSON,
 } from '../models/index';
 
 export interface CompleteSignupRequest {
-    socialSignupDTO: SocialSignupDTO;
+    socialSignupRequest: SocialSignupRequest;
 }
 
 export interface SendEmailVerificationCodeRequest {
-    emailAuthDTO: EmailAuthDTO;
+    emailAuthRequest: EmailAuthRequest;
 }
 
-export interface SignupRequest {
-    signupDTO: SignupDTO;
+export interface SignupOperationRequest {
+    signupRequest: SignupRequest;
 }
 
 export interface UpdateAddressRequest {
-    myPageAddressUpdateDTO: MyPageAddressUpdateDTO;
+    addressUpdateRequest: AddressUpdateRequest;
 }
 
 export interface VerifyEmailCodeRequest {
-    emailAuthVerificationDTO: EmailAuthVerificationDTO;
+    emailAuthVerifyRequest: EmailAuthVerifyRequest;
 }
 
 /**
@@ -137,10 +137,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * 소셜 회원가입 최종 처리
      */
     async completeSignupRaw(requestParameters: CompleteSignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
-        if (requestParameters['socialSignupDTO'] == null) {
+        if (requestParameters['socialSignupRequest'] == null) {
             throw new runtime.RequiredError(
-                'socialSignupDTO',
-                'Required parameter "socialSignupDTO" was null or undefined when calling completeSignup().'
+                'socialSignupRequest',
+                'Required parameter "socialSignupRequest" was null or undefined when calling completeSignup().'
             );
         }
 
@@ -163,7 +163,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SocialSignupDTOToJSON(requestParameters['socialSignupDTO']),
+            body: SocialSignupRequestToJSON(requestParameters['socialSignupRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
@@ -181,7 +181,7 @@ export class DefaultApi extends runtime.BaseAPI {
      * 회원의 이름 및 주소 정보를 조회합니다.
      * 내 정보 조회
      */
-    async getMyPageInfoRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseMyPageInfoDTO>> {
+    async getMyPageInfoRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseMyPageInfoResponse>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -201,14 +201,14 @@ export class DefaultApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseMyPageInfoDTOFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseMyPageInfoResponseFromJSON(jsonValue));
     }
 
     /**
      * 회원의 이름 및 주소 정보를 조회합니다.
      * 내 정보 조회
      */
-    async getMyPageInfo(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseMyPageInfoDTO> {
+    async getMyPageInfo(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseMyPageInfoResponse> {
         const response = await this.getMyPageInfoRaw(initOverrides);
         return await response.value();
     }
@@ -217,10 +217,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * 이메일 인증 코드 전송
      */
     async sendEmailVerificationCodeRaw(requestParameters: SendEmailVerificationCodeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
-        if (requestParameters['emailAuthDTO'] == null) {
+        if (requestParameters['emailAuthRequest'] == null) {
             throw new runtime.RequiredError(
-                'emailAuthDTO',
-                'Required parameter "emailAuthDTO" was null or undefined when calling sendEmailVerificationCode().'
+                'emailAuthRequest',
+                'Required parameter "emailAuthRequest" was null or undefined when calling sendEmailVerificationCode().'
             );
         }
 
@@ -243,7 +243,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: EmailAuthDTOToJSON(requestParameters['emailAuthDTO']),
+            body: EmailAuthRequestToJSON(requestParameters['emailAuthRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
@@ -260,11 +260,11 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 자체 회원가입
      */
-    async signupRaw(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
-        if (requestParameters['signupDTO'] == null) {
+    async signupRaw(requestParameters: SignupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
+        if (requestParameters['signupRequest'] == null) {
             throw new runtime.RequiredError(
-                'signupDTO',
-                'Required parameter "signupDTO" was null or undefined when calling signup().'
+                'signupRequest',
+                'Required parameter "signupRequest" was null or undefined when calling signup().'
             );
         }
 
@@ -287,7 +287,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SignupDTOToJSON(requestParameters['signupDTO']),
+            body: SignupRequestToJSON(requestParameters['signupRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
@@ -296,7 +296,7 @@ export class DefaultApi extends runtime.BaseAPI {
     /**
      * 자체 회원가입
      */
-    async signup(requestParameters: SignupRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
+    async signup(requestParameters: SignupOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
         const response = await this.signupRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -306,10 +306,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * 주소 수정
      */
     async updateAddressRaw(requestParameters: UpdateAddressRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
-        if (requestParameters['myPageAddressUpdateDTO'] == null) {
+        if (requestParameters['addressUpdateRequest'] == null) {
             throw new runtime.RequiredError(
-                'myPageAddressUpdateDTO',
-                'Required parameter "myPageAddressUpdateDTO" was null or undefined when calling updateAddress().'
+                'addressUpdateRequest',
+                'Required parameter "addressUpdateRequest" was null or undefined when calling updateAddress().'
             );
         }
 
@@ -332,7 +332,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'PATCH',
             headers: headerParameters,
             query: queryParameters,
-            body: MyPageAddressUpdateDTOToJSON(requestParameters['myPageAddressUpdateDTO']),
+            body: AddressUpdateRequestToJSON(requestParameters['addressUpdateRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
@@ -351,10 +351,10 @@ export class DefaultApi extends runtime.BaseAPI {
      * 이메일 인증 코드 검증
      */
     async verifyEmailCodeRaw(requestParameters: VerifyEmailCodeRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
-        if (requestParameters['emailAuthVerificationDTO'] == null) {
+        if (requestParameters['emailAuthVerifyRequest'] == null) {
             throw new runtime.RequiredError(
-                'emailAuthVerificationDTO',
-                'Required parameter "emailAuthVerificationDTO" was null or undefined when calling verifyEmailCode().'
+                'emailAuthVerifyRequest',
+                'Required parameter "emailAuthVerifyRequest" was null or undefined when calling verifyEmailCode().'
             );
         }
 
@@ -377,7 +377,7 @@ export class DefaultApi extends runtime.BaseAPI {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: EmailAuthVerificationDTOToJSON(requestParameters['emailAuthVerificationDTO']),
+            body: EmailAuthVerifyRequestToJSON(requestParameters['emailAuthVerifyRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));

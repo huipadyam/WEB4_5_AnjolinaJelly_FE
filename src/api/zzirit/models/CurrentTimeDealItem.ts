@@ -13,21 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { Brand } from './Brand';
-import {
-    BrandFromJSON,
-    BrandFromJSONTyped,
-    BrandToJSON,
-    BrandToJSONTyped,
-} from './Brand';
-import type { Type } from './Type';
-import {
-    TypeFromJSON,
-    TypeFromJSONTyped,
-    TypeToJSON,
-    TypeToJSONTyped,
-} from './Type';
-
 /**
  * 
  * @export
@@ -60,16 +45,16 @@ export interface CurrentTimeDealItem {
     discountedPrice?: number;
     /**
      * 
-     * @type {Type}
+     * @type {string}
      * @memberof CurrentTimeDealItem
      */
-    type?: Type;
+    type?: string;
     /**
      * 
-     * @type {Brand}
+     * @type {string}
      * @memberof CurrentTimeDealItem
      */
-    brand?: Brand;
+    brand?: string;
 }
 
 /**
@@ -93,8 +78,8 @@ export function CurrentTimeDealItemFromJSONTyped(json: any, ignoreDiscriminator:
         'imageUrl': json['imageUrl'] == null ? undefined : json['imageUrl'],
         'originalPrice': json['originalPrice'] == null ? undefined : json['originalPrice'],
         'discountedPrice': json['discountedPrice'] == null ? undefined : json['discountedPrice'],
-        'type': json['type'] == null ? undefined : TypeFromJSON(json['type']),
-        'brand': json['brand'] == null ? undefined : BrandFromJSON(json['brand']),
+        'type': json['type'] == null ? undefined : json['type'],
+        'brand': json['brand'] == null ? undefined : json['brand'],
     };
 }
 
@@ -113,8 +98,8 @@ export function CurrentTimeDealItemToJSONTyped(value?: CurrentTimeDealItem | nul
         'imageUrl': value['imageUrl'],
         'originalPrice': value['originalPrice'],
         'discountedPrice': value['discountedPrice'],
-        'type': TypeToJSON(value['type']),
-        'brand': BrandToJSON(value['brand']),
+        'type': value['type'],
+        'brand': value['brand'],
     };
 }
 
