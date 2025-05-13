@@ -61,7 +61,6 @@ export default function ItemEditModal({
   });
   const [categories, setCategories] = useState<TypeFetchResponse[]>([]);
   const [brands, setBrands] = useState<BrandFetchResponse[]>([]);
-  const [loading, setLoading] = useState(false);
 
   // 상품 종류 목록 가져오기
   useEffect(() => {
@@ -85,7 +84,6 @@ export default function ItemEditModal({
       if (formData.categoryId <= 0) return;
 
       try {
-        setLoading(true);
         const response = await client.api.findBrandByType({
           typeId: formData.categoryId,
         });
@@ -94,8 +92,6 @@ export default function ItemEditModal({
         }
       } catch (error) {
         console.error("브랜드 조회 중 오류 발생:", error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -150,24 +146,10 @@ export default function ItemEditModal({
   };
 
   const handleSubmit = async () => {
-    const categoryName =
-      categories.find((cat) => cat.typeId === formData.categoryId)?.name || "";
-    const brandName =
-      brands.find((brand) => brand.brandId === formData.brandId)?.name || "";
-
-    // API에 전송할 데이터 준비
-    const apiData = {
-      itemId: formData.id,
-      itemCreateRequest: {
-        name: formData.name,
-        stockQuantity: formData.stock,
-        price: formData.price,
-        typeId: formData.categoryId,
-        brandId: formData.brandId,
-      },
-    };
+    if (!item) return;
 
     try {
+      // API에는 변경 가능한 값(재고, 가격)만 전송
       await client.api.updateItem({
         itemId: formData.id,
         itemUpdateRequest: {
@@ -176,26 +158,35 @@ export default function ItemEditModal({
         },
       });
 
-      // item이 null이 아님을 확인했으므로 안전하게 id를 사용할 수 있음
-      if (!item) return;
-
       const uiData: Item = {
         id: item.id,
-        name: formData.name,
+        name: item.name, // 원래 상품명 유지
         stock: formData.stock,
         price: formData.price,
-        category: categoryName,
-        brand: brandName,
+        category: item.category, // 원래 카테고리 유지
+        brand: item.brand, // 원래 브랜드 유지
         image: item.image || "",
         itemNumber: item.itemNumber || 0,
         selected: item.selected || false,
       };
 
-      onSave({ api: apiData, ui: uiData });
+      onSave({
+        api: {
+          itemId: formData.id,
+          itemCreateRequest: {
+            name: item.name,
+            stockQuantity: formData.stock,
+            price: formData.price,
+            typeId: formData.categoryId,
+            brandId: formData.brandId,
+          },
+        },
+        ui: uiData,
+      });
 
       // 수정 성공 알림 표시
       alertService.showAlert(
-        `상품 "${formData.name}"이(가) 성공적으로 수정되었습니다.`,
+        `상품 "${item.name}"의 재고와 가격이 성공적으로 수정되었습니다.`,
         "success"
       );
     } catch (error) {
@@ -224,9 +215,12 @@ export default function ItemEditModal({
                 label="상품명"
                 name="name"
                 value={formData.name}
-                onChange={handleChange}
                 variant="outlined"
                 margin="normal"
+                InputProps={{
+                  readOnly: true,
+                }}
+                disabled
               />
               <TextField
                 fullWidth
@@ -266,8 +260,9 @@ export default function ItemEditModal({
                 <Select
                   name="categoryId"
                   value={formData.categoryId}
-                  onChange={handleChange}
                   label="상품 종류"
+                  disabled
+                  readOnly
                 >
                   {categories.map((category) => (
                     <MenuItem key={category.typeId} value={category.typeId}>
@@ -281,11 +276,9 @@ export default function ItemEditModal({
                 <Select
                   name="brandId"
                   value={formData.brandId}
-                  onChange={handleChange}
                   label="브랜드"
-                  disabled={
-                    loading || formData.categoryId === 0 || brands.length === 0
-                  }
+                  disabled
+                  readOnly
                 >
                   {brands.map((brand) => (
                     <MenuItem key={brand.brandId} value={brand.brandId}>
