@@ -2,88 +2,42 @@
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import { useRouter } from "next/navigation";
-import { ItemResponse } from "../api/zzirit/models/ItemResponse";
 import ItemCard from "./ItemCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-
-// 더미 데이터
-const timeDealProducts: (ItemResponse & {
-  image: string;
-  originalPrice: number;
-  discount: number;
-})[] = [
-  {
-    itemId: 1,
-    name: "프리미엄 찌릿 청소기",
-    type: "가전",
-    brand: "찌릿",
-    quantity: 100,
-    price: 99000,
-    timeDealStatus: "TIME_DEAL",
-    endTimeDeal: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1시간 뒤
-    image: "/sample1.jpg",
-    originalPrice: 129000,
-    discount: 23,
-  },
-  {
-    itemId: 2,
-    name: "찌릿 무선 이어폰",
-    type: "전자기기",
-    brand: "찌릿",
-    quantity: 50,
-    price: 39000,
-    timeDealStatus: "TIME_DEAL",
-    endTimeDeal: new Date(Date.now() + 45 * 60 * 1000), // 45분 뒤
-    image: "/sample2.jpg",
-    originalPrice: 59000,
-    discount: 34,
-  },
-  {
-    itemId: 3,
-    name: "찌릿 유기농 사과",
-    type: "식품",
-    brand: "찌릿",
-    quantity: 200,
-    price: 17900,
-    timeDealStatus: "TIME_DEAL",
-    endTimeDeal: new Date(Date.now() + 2 * 60 * 60 * 1000 + 10 * 60 * 1000), // 2시간 10분 뒤
-    image: "/sample3.jpg",
-    originalPrice: 25000,
-    discount: 28,
-  },
-  {
-    itemId: 4,
-    name: "찌릿 프리미엄 베개",
-    type: "생활용품",
-    brand: "찌릿",
-    quantity: 80,
-    price: 29900,
-    timeDealStatus: "TIME_DEAL",
-    endTimeDeal: new Date(Date.now() + 1 * 60 * 60 * 1000), // 1시간 뒤
-    image: "/sample4.jpg",
-    originalPrice: 45000,
-    discount: 33,
-  },
-  {
-    itemId: 5,
-    name: "찌릿 스마트워치",
-    type: "전자기기",
-    brand: "찌릿",
-    quantity: 60,
-    price: 119000,
-    timeDealStatus: "TIME_DEAL",
-    endTimeDeal: new Date(Date.now() + 3 * 60 * 60 * 1000 + 12 * 60 * 1000), // 3시간 12분 뒤
-    image: "/sample5.jpg",
-    originalPrice: 159000,
-    discount: 25,
-  },
-];
+import { useCurrentTimeDealItemsQuery } from "@/queries/item";
 
 export default function TimeDealSection() {
   const router = useRouter();
+
+  // 타임딜 상품 목록 불러오기
+  const { data, isLoading, isError } = useCurrentTimeDealItemsQuery();
+
+  if (isLoading) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography>타임딜 상품을 불러오는 중...</Typography>
+      </Box>
+    );
+  }
+  if (isError) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography color="error">
+          타임딜 상품을 불러오지 못했습니다.
+        </Typography>
+      </Box>
+    );
+  }
+  if (!data || data.length === 0) {
+    return (
+      <Box sx={{ py: 6, textAlign: "center" }}>
+        <Typography>진행 중인 타임딜 상품이 없습니다.</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -142,9 +96,19 @@ export default function TimeDealSection() {
             900: { slidesPerView: 3 },
           }}
         >
-          {timeDealProducts.map((product) => (
+          {data.map((product) => (
             <SwiperSlide key={product.itemId}>
-              <ItemCard {...product} />
+              <ItemCard
+                itemId={product.itemId ?? 0}
+                image={product.imageUrl ?? "/images/placeholder.png"}
+                name={product.brand?.name ?? ""}
+                type={product.type?.name ?? ""}
+                discountedPrice={product.discountedPrice ?? 0}
+                timeDealStatus="TIME_DEAL"
+                endTimeDeal={product.timeDealEnd}
+                originalPrice={product.originalPrice}
+                discount={product.discountRatio}
+              />
             </SwiperSlide>
           ))}
         </Swiper>

@@ -20,7 +20,7 @@ import {
 import { useState, useEffect } from "react";
 import { Item } from "@/types/admin";
 import { client } from "@/api/zzirit/client";
-import { TypeResponse, BrandResponse } from "@/api/zzirit/models";
+import { TypeFetchResponse, BrandFetchResponse } from "@/api/zzirit/models";
 import { alertService } from "@/components/admin/AlertSnackbar";
 
 interface ItemEditModalProps {
@@ -59,15 +59,15 @@ export default function ItemEditModal({
     categoryId: 0,
     brandId: 0,
   });
-  const [categories, setCategories] = useState<TypeResponse[]>([]);
-  const [brands, setBrands] = useState<BrandResponse[]>([]);
+  const [categories, setCategories] = useState<TypeFetchResponse[]>([]);
+  const [brands, setBrands] = useState<BrandFetchResponse[]>([]);
   const [loading, setLoading] = useState(false);
 
   // 상품 종류 목록 가져오기
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await client.findType();
+        const response = await client.api.findType();
         if (response.success && response.result) {
           setCategories(response.result);
         }
@@ -86,7 +86,7 @@ export default function ItemEditModal({
 
       try {
         setLoading(true);
-        const response = await client.findBrandByType({
+        const response = await client.api.findBrandByType({
           typeId: formData.categoryId,
         });
         if (response.success && response.result) {
@@ -168,14 +168,11 @@ export default function ItemEditModal({
     };
 
     try {
-      await client.updateItem({
+      await client.api.updateItem({
         itemId: formData.id,
-        itemCreateRequest: {
-          name: formData.name,
+        itemUpdateRequest: {
           stockQuantity: formData.stock,
           price: formData.price,
-          typeId: formData.categoryId,
-          brandId: formData.brandId,
         },
       });
 

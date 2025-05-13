@@ -17,21 +17,21 @@ import * as runtime from '../runtime';
 import type {
   BaseResponseEmpty,
   BaseResponseString,
-  PaymentRequestDto,
+  PaymentRequest,
 } from '../models/index';
 import {
     BaseResponseEmptyFromJSON,
     BaseResponseEmptyToJSON,
     BaseResponseStringFromJSON,
     BaseResponseStringToJSON,
-    PaymentRequestDtoFromJSON,
-    PaymentRequestDtoToJSON,
+    PaymentRequestFromJSON,
+    PaymentRequestToJSON,
 } from '../models/index';
 
 export interface ConfirmPaymentRequest {
     paymentKey: string;
     orderId: string;
-    amount: number;
+    amount: string;
 }
 
 export interface FailPaymentRequest {
@@ -40,8 +40,8 @@ export interface FailPaymentRequest {
     orderId?: string;
 }
 
-export interface RequestPaymentRequest {
-    paymentRequestDto: PaymentRequestDto;
+export interface InitOrderRequest {
+    paymentRequest: PaymentRequest;
 }
 
 /**
@@ -50,8 +50,8 @@ export interface RequestPaymentRequest {
 export class PaymentsApi extends runtime.BaseAPI {
 
     /**
-     * 결제 성공 시 Toss 에서 호출하는 콜백입니다. 주문을 확정 처리합니다.
-     * 결제 성공 콜백
+     * 결제 성공 시 주문을 확정 처리합니다.
+     * 결제 성공
      */
     async confirmPaymentRaw(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
         if (requestParameters['paymentKey'] == null) {
@@ -110,8 +110,8 @@ export class PaymentsApi extends runtime.BaseAPI {
     }
 
     /**
-     * 결제 성공 시 Toss 에서 호출하는 콜백입니다. 주문을 확정 처리합니다.
-     * 결제 성공 콜백
+     * 결제 성공 시 주문을 확정 처리합니다.
+     * 결제 성공
      */
     async confirmPayment(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
         const response = await this.confirmPaymentRaw(requestParameters, initOverrides);
@@ -119,8 +119,8 @@ export class PaymentsApi extends runtime.BaseAPI {
     }
 
     /**
-     * 결제 실패 또는 사용자 취소 시 Toss 에서 호출하는 콜백입니다.
-     * 결제 실패 콜백
+     * 결제 실패 또는 사용자 취소 시 임시 주문이 삭제됩니다.
+     * 결제 실패
      */
     async failPaymentRaw(requestParameters: FailPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseString>> {
         const queryParameters: any = {};
@@ -158,8 +158,8 @@ export class PaymentsApi extends runtime.BaseAPI {
     }
 
     /**
-     * 결제 실패 또는 사용자 취소 시 Toss 에서 호출하는 콜백입니다.
-     * 결제 실패 콜백
+     * 결제 실패 또는 사용자 취소 시 임시 주문이 삭제됩니다.
+     * 결제 실패
      */
     async failPayment(requestParameters: FailPaymentRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseString> {
         const response = await this.failPaymentRaw(requestParameters, initOverrides);
@@ -167,14 +167,14 @@ export class PaymentsApi extends runtime.BaseAPI {
     }
 
     /**
-     * 주문 정보를 기반으로 Toss 결제 URL 을 생성합니다.
-     * 결제 요청
+     * 결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다.
+     * 주문번호 생성
      */
-    async requestPaymentRaw(requestParameters: RequestPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseString>> {
-        if (requestParameters['paymentRequestDto'] == null) {
+    async initOrderRaw(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseString>> {
+        if (requestParameters['paymentRequest'] == null) {
             throw new runtime.RequiredError(
-                'paymentRequestDto',
-                'Required parameter "paymentRequestDto" was null or undefined when calling requestPayment().'
+                'paymentRequest',
+                'Required parameter "paymentRequest" was null or undefined when calling initOrder().'
             );
         }
 
@@ -193,22 +193,22 @@ export class PaymentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/payments`,
+            path: `/api/payments/init`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: PaymentRequestDtoToJSON(requestParameters['paymentRequestDto']),
+            body: PaymentRequestToJSON(requestParameters['paymentRequest']),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseStringFromJSON(jsonValue));
     }
 
     /**
-     * 주문 정보를 기반으로 Toss 결제 URL 을 생성합니다.
-     * 결제 요청
+     * 결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다.
+     * 주문번호 생성
      */
-    async requestPayment(requestParameters: RequestPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseString> {
-        const response = await this.requestPaymentRaw(requestParameters, initOverrides);
+    async initOrder(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseString> {
+        const response = await this.initOrderRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

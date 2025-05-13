@@ -1,5 +1,6 @@
 import ThemeRegistry from "@/app/ThemeRegistry";
 import Script from "next/script";
+import AlertSnackbar from "@/components/admin/AlertSnackbar";
 
 export default function AuthLayout({
   children,
@@ -13,6 +14,7 @@ export default function AuthLayout({
       </head>
       <body>
         <ThemeRegistry>{children}</ThemeRegistry>
+        <AlertSnackbar />
         <Script
           src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
           strategy="afterInteractive"

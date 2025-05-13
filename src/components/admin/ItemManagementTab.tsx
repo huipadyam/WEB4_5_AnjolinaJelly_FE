@@ -13,12 +13,20 @@ export default function ItemManagementTab() {
   const {
     items,
     loading: itemsLoading,
+    isPageChanging,
     currentPage: itemsCurrentPage,
     totalPages: itemsTotalPages,
     selectAll: itemsSelectAll,
+    searchField,
+    searchQuery,
+    isSearching,
     handlePageChange: handleItemsPageChange,
     handleSelectAll: handleItemsSelectAll,
     handleSelectOne: handleItemsSelectOne,
+    handleSearchFieldChange,
+    handleSearchQueryChange,
+    handleSearch,
+    handleClearSearch,
     updateItem: handleUpdateItem,
     deleteSelectedItems,
     getSelectedItems,
@@ -90,6 +98,13 @@ export default function ItemManagementTab() {
         selectedItemsCount={selectedItemsCount}
         onCreateTimeDeal={handleOpenTimeDealModal}
         onItemAdded={handleItemAdded}
+        searchField={searchField}
+        searchQuery={searchQuery}
+        onSearchFieldChange={handleSearchFieldChange}
+        onSearchQueryChange={handleSearchQueryChange}
+        onSearch={handleSearch}
+        onClearSearch={handleClearSearch}
+        isSearching={isSearching}
       />
 
       <ItemTable
@@ -99,6 +114,8 @@ export default function ItemManagementTab() {
         onSelectOne={handleItemsSelectOne}
         onUpdateItem={handleUpdateItem}
         loading={itemsLoading}
+        isPageChanging={isPageChanging}
+        isSearching={isSearching}
       />
 
       <Pagination

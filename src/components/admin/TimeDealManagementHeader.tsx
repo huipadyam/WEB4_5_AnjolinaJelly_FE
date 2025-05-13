@@ -10,20 +10,66 @@ import {
   useTheme,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
+import { TimeDealSearchField } from "@/hooks/useTimeDealsWithPagination";
 
 interface TimeDealManagementHeaderProps {
   statusFilter: string | null;
   setStatusFilter: (status: string | null) => void;
+  // 검색 관련 props 추가
+  searchField: TimeDealSearchField;
+  searchQuery: string;
+  onSearchFieldChange: (field: TimeDealSearchField) => void;
+  onSearchQueryChange: (query: string) => void;
+  onSearch: () => void;
+  onClearSearch: () => void;
+  isSearching: boolean;
 }
 
 export default function TimeDealManagementHeader({
   statusFilter,
   setStatusFilter,
+  searchField,
+  searchQuery,
+  onSearchFieldChange,
+  onSearchQueryChange,
+  onSearch,
+  onClearSearch,
+  isSearching,
 }: TimeDealManagementHeaderProps) {
   const theme = useTheme();
 
   // 모든 요소의 통일된 높이 설정
   const elementHeight = 40;
+
+  // 검색 필드 변경 핸들러
+  const handleSearchFieldChange = (
+    e: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    onSearchFieldChange(e.target.value as TimeDealSearchField);
+  };
+
+  // 검색어 변경 핸들러
+  const handleSearchQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onSearchQueryChange(e.target.value);
+  };
+
+  // 검색 버튼 클릭 핸들러
+  const handleSearch = () => {
+    onSearch();
+  };
+
+  // 검색어 입력 필드에서 엔터키 처리
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // 검색 초기화 핸들러
+  const handleClearSearch = () => {
+    onClearSearch();
+  };
 
   return (
     <>
@@ -42,7 +88,8 @@ export default function TimeDealManagementHeader({
           <TextField
             select
             fullWidth
-            value="타임딜 이름"
+            value={searchField}
+            onChange={handleSearchFieldChange}
             size="small"
             slotProps={{
               select: {
@@ -65,8 +112,8 @@ export default function TimeDealManagementHeader({
               },
             }}
           >
-            <option value="타임딜 이름">타임딜 이름</option>
-            <option value="타임딜 아이디">타임딜 아이디</option>
+            <option value="timeDealName">타임딜 이름</option>
+            <option value="timeDealId">타임딜 아이디</option>
           </TextField>
         </Box>
 
@@ -75,16 +122,22 @@ export default function TimeDealManagementHeader({
           variant="outlined"
           size="small"
           fullWidth
-          slotProps={{
-            input: {
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton>
-                    <SearchIcon />
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          onKeyDown={handleKeyDown}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                {isSearching ? (
+                  <IconButton onClick={handleClearSearch} size="small">
+                    <ClearIcon />
                   </IconButton>
-                </InputAdornment>
-              ),
-            },
+                ) : null}
+                <IconButton onClick={handleSearch} size="small" color="primary">
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
           sx={{
             height: elementHeight,

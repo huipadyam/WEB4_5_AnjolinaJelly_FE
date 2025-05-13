@@ -14,19 +14,19 @@
 
 import { mapValues } from '../runtime';
 /**
- * 타임딜 등록 상품 항목
+ * 
  * @export
  * @interface TimeDealCreateItem
  */
 export interface TimeDealCreateItem {
     /**
-     * 상품 ID
+     * 
      * @type {number}
      * @memberof TimeDealCreateItem
      */
     itemId?: number;
     /**
-     * 상품 수량
+     * 
      * @type {number}
      * @memberof TimeDealCreateItem
      */

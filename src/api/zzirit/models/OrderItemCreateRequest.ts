@@ -31,6 +31,18 @@ export interface OrderItemCreateRequest {
      * @memberof OrderItemCreateRequest
      */
     quantity?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof OrderItemCreateRequest
+     */
+    itemName?: string;
+    /**
+     * 
+     * @type {number}
+     * @memberof OrderItemCreateRequest
+     */
+    price?: number;
 }
 
 /**
@@ -52,6 +64,8 @@ export function OrderItemCreateRequestFromJSONTyped(json: any, ignoreDiscriminat
         
         'itemId': json['itemId'] == null ? undefined : json['itemId'],
         'quantity': json['quantity'] == null ? undefined : json['quantity'],
+        'itemName': json['itemName'] == null ? undefined : json['itemName'],
+        'price': json['price'] == null ? undefined : json['price'],
     };
 }
 
@@ -68,6 +82,8 @@ export function OrderItemCreateRequestToJSONTyped(value?: OrderItemCreateRequest
         
         'itemId': value['itemId'],
         'quantity': value['quantity'],
+        'itemName': value['itemName'],
+        'price': value['price'],
     };
 }
 

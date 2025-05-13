@@ -3,30 +3,23 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, Typography, Stack } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ImageWithFallback from "./ImageWithFallback";
-import { ItemResponse } from "../api/zzirit/models/ItemResponse";
 import Link from "next/link";
-
-export interface ItemCardProps extends ItemResponse {
-  image: string;
-  originalPrice?: number;
-  discount?: number;
-}
+import { SimpleItemFetchResponse } from "@/api/zzirit";
 
 export default function ItemCard({
-  image,
-  itemId,
+  imageUrl,
   name,
   type,
-  price,
-  timeDealStatus,
-  endTimeDeal,
+  discountedPrice,
+  itemId,
+  itemStatus,
   originalPrice,
-  discount,
-}: ItemCardProps) {
+  discountRatio,
+  endTimeDeal,
+}: SimpleItemFetchResponse) {
   const timeLeft = useTimeLeft(endTimeDeal);
-
   // 타임딜 카드
-  if (timeDealStatus === "TIME_DEAL") {
+  if (itemStatus === "TIME_DEAL") {
     return (
       <Link href={`/items/${itemId}`}>
         <Card
@@ -39,9 +32,9 @@ export default function ItemCard({
         >
           <div style={{ width: "100%", height: 140, overflow: "hidden" }}>
             <ImageWithFallback
-              src={image}
+              src={imageUrl ?? ""}
               alt={name ?? ""}
-              fallbackKey={image}
+              fallbackKey={imageUrl}
               style={{ width: "100%", height: 140, objectFit: "cover" }}
             />
           </div>
@@ -62,7 +55,7 @@ export default function ItemCard({
                 fontWeight={700}
                 sx={{ ml: "auto", bgcolor: "#E3F2FD", px: 1, borderRadius: 1 }}
               >
-                {discount ?? 0}% 할인
+                {discountRatio ?? 0}% 할인
               </Typography>
             </Stack>
             <Typography variant="subtitle1" fontWeight={600} mt={1} noWrap>
@@ -77,7 +70,7 @@ export default function ItemCard({
                 fontWeight={700}
                 color="secondary.main"
               >
-                {price?.toLocaleString()}원
+                {discountedPrice?.toLocaleString()}원
               </Typography>
               <Typography
                 variant="body2"
@@ -106,9 +99,9 @@ export default function ItemCard({
       >
         <div style={{ width: "100%", height: 140, overflow: "hidden" }}>
           <ImageWithFallback
-            src={image}
+            src={imageUrl ?? ""}
             alt={name ?? ""}
-            fallbackKey={image}
+            fallbackKey={imageUrl}
             style={{ width: "100%", height: 140, objectFit: "cover" }}
           />
         </div>
@@ -125,7 +118,7 @@ export default function ItemCard({
             color="secondary.main"
             mt={1}
           >
-            {price?.toLocaleString()}원
+            {originalPrice?.toLocaleString()}원
           </Typography>
         </CardContent>
       </Card>

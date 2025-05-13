@@ -1,5 +1,6 @@
-import { useState, useEffect, ChangeEvent } from "react";
+import { useState, useEffect, ChangeEvent, useCallback } from "react";
 import { client } from "@/api/zzirit/client";
+import { TimeDealFetchResponse } from "@/api/zzirit/models";
 
 // 타임딜 관련 타입 정의
 interface TimeDealItem {
@@ -21,40 +22,8 @@ export interface TimeDeal {
   selected?: boolean;
 }
 
-interface TimeDealApiResponse {
-  success: boolean;
-  code: number;
-  httpStatus: number;
-  message: string;
-  result: {
-    content: TimeDeal[];
-    pageable: {
-      pageNumber: number;
-      pageSize: number;
-      sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-      };
-      offset: number;
-      paged: boolean;
-      unpaged: boolean;
-    };
-    last: boolean;
-    totalElements: number;
-    totalPages: number;
-    size: number;
-    number: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
-    first: boolean;
-    numberOfElements: number;
-    empty: boolean;
-  };
-}
+// 검색 옵션 타입 정의
+export type TimeDealSearchField = "timeDealName" | "timeDealId";
 
 export function useTimeDealsWithPagination(initialPage = 1) {
   const [timeDeals, setTimeDeals] = useState<TimeDeal[]>([]);
@@ -64,42 +33,111 @@ export function useTimeDealsWithPagination(initialPage = 1) {
   const [error, setError] = useState<Error | null>(null);
   const [selectAll, setSelectAll] = useState(false);
 
-  useEffect(() => {
-    const fetchTimeDeals = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+  // 검색 관련 상태
+  const [searchField, setSearchField] =
+    useState<TimeDealSearchField>("timeDealName");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeSearchQuery, setActiveSearchQuery] = useState("");
+  const [activeSearchField, setActiveSearchField] =
+    useState<TimeDealSearchField>("timeDealName");
 
-        const response = await client.getTimeDeals(currentPage);
-        const data = (await response.json()) as TimeDealApiResponse;
+  const fetchTimeDeals = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-        if (data.success && data.result) {
-          // 타임딜 데이터에 selected 속성 추가
-          const apiTimeDeals = data.result.content.map((deal) => ({
-            ...deal,
-            selected: false,
-          }));
+      // 검색 파라미터 설정
+      const params = {
+        page: currentPage - 1, // API는 0부터 시작하는 페이지 인덱스 사용
+        size: 10,
+      } as Record<string, string | number>;
 
-          setTimeDeals(apiTimeDeals);
-          setTotalPages(data.result.totalPages);
-        }
-      } catch (err) {
-        setError(
-          err instanceof Error
-            ? err
-            : new Error("알 수 없는 오류가 발생했습니다.")
-        );
-        console.error("타임딜 데이터를 불러오는 데 실패했습니다:", err);
-      } finally {
-        setLoading(false);
+      // 검색어가 있는 경우 검색 필드에 따라 파라미터 추가
+      if (activeSearchQuery) {
+        params[activeSearchField] = activeSearchQuery;
       }
-    };
 
+      const response = await client.api.searchTimeDeals(params);
+
+      if (response.success && response.result) {
+        // 타임딜 데이터에 selected 속성 추가
+        const apiTimeDeals =
+          response.result.content?.map((deal: TimeDealFetchResponse) => {
+            // TimeDealFetchItem을 TimeDealItem으로 변환
+            const timeDealItems: TimeDealItem[] =
+              deal.items?.map((item) => ({
+                itemId: item.itemId || 0,
+                itemName: item.itemName || "",
+                quantity: item.quantity || 0,
+                originalPrice: item.originalPrice || 0,
+                finalPrice: item.discountedPrice || 0, // API의 discountedPrice를 finalPrice로 매핑
+              })) || [];
+
+            return {
+              timeDealId: deal.timeDealId || 0,
+              timeDealName: deal.timeDealName || "",
+              startTime: deal.startTime ? deal.startTime.toString() : "",
+              endTime: deal.endTime ? deal.endTime.toString() : "",
+              status: (deal.status || "ENDED") as
+                | "ONGOING"
+                | "UPCOMING"
+                | "ENDED",
+              discountRate: deal.discountRatio || 0, // discountRatio가 올바른 필드명
+              items: timeDealItems,
+              selected: false,
+            };
+          }) || [];
+
+        setTimeDeals(apiTimeDeals);
+        if (response.result.totalPages !== undefined) {
+          setTotalPages(response.result.totalPages);
+        }
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err
+          : new Error("알 수 없는 오류가 발생했습니다.")
+      );
+      console.error("타임딜 데이터를 불러오는 데 실패했습니다:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, activeSearchField, activeSearchQuery]);
+
+  useEffect(() => {
     fetchTimeDeals();
-  }, [currentPage]);
+  }, [fetchTimeDeals]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  // 검색 필드 변경 핸들러
+  const handleSearchFieldChange = (field: TimeDealSearchField) => {
+    setSearchField(field);
+  };
+
+  // 검색어 변경 핸들러
+  const handleSearchQueryChange = (query: string) => {
+    setSearchQuery(query);
+  };
+
+  // 검색 실행 핸들러
+  const handleSearch = () => {
+    setActiveSearchField(searchField);
+    setActiveSearchQuery(searchQuery);
+    setIsSearching(!!searchQuery);
+    setCurrentPage(1); // 검색 시 항상 1페이지부터 시작
+  };
+
+  // 검색 초기화 핸들러
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setActiveSearchQuery("");
+    setIsSearching(false);
+    setCurrentPage(1);
   };
 
   const handleSelectAll = (event: ChangeEvent<HTMLInputElement>) => {
@@ -127,8 +165,16 @@ export function useTimeDealsWithPagination(initialPage = 1) {
     currentPage,
     totalPages,
     selectAll,
+    searchField,
+    searchQuery,
+    isSearching,
     handlePageChange,
     handleSelectAll,
     handleSelectOne,
+    handleSearchFieldChange,
+    handleSearchQueryChange,
+    handleSearch,
+    handleClearSearch,
+    refreshTimeDeals: fetchTimeDeals,
   };
 }

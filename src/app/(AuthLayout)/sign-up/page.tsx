@@ -14,6 +14,9 @@ import {
 } from "@mui/material";
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { client } from "@/api/zzirit/client";
+import { alertService } from "@/components/admin/AlertSnackbar";
+import { ResponseError } from "@/api/zzirit";
 
 const signUpSchema = z
   .object({
@@ -57,17 +60,20 @@ export default function SignUp() {
   // 이메일 인증 관련 상태
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isEmailVerified, setIsEmailVerified] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
-  const [inputCode, setInputCode] = useState("");
   const [timer, setTimer] = useState(0); // 초 단위
   const [canResend, setCanResend] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const [address, setAddress] = useState("");
+  const [loading, setLoading] = useState(false); // API 로딩 상태
+  const [inputCode, setInputCode] = useState("");
   const router = useRouter();
   const {
     register,
     handleSubmit,
     formState: { errors },
+    getValues,
+    setError,
+    setValue,
   } = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
   });
@@ -86,17 +92,33 @@ export default function SignUp() {
     };
   }, [timer, isEmailSent, isEmailVerified]);
 
-  // 인증번호 발송 함수 (가짜)
-  const handleSendCode = () => {
-    // 실제로는 이메일로 인증번호 발송 API 호출
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    setVerificationCode(code);
-    setIsEmailSent(true);
-    setIsEmailVerified(false);
-    setTimer(180); // 3분
-    setCanResend(false);
-    setInputCode("");
-    // alert(`인증번호(테스트): ${code}`); // 개발용
+  // 이메일 인증번호 발송
+  const handleSendCode = async () => {
+    const email = getValues("email");
+    if (!email) {
+      setError("email", { message: "이메일을 입력해주세요." });
+      return;
+    }
+    setLoading(true);
+    try {
+      await client.auth.sendEmailVerificationCode({
+        emailAuthRequest: { email: email },
+      });
+      setIsEmailSent(true);
+      setIsEmailVerified(false);
+      setTimer(180); // 3분
+      setCanResend(false);
+      setInputCode("");
+      alertService.showAlert("인증번호가 이메일로 발송되었습니다.", "success");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alertService.showAlert(
+        err?.message || "인증번호 발송에 실패했습니다.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   // 인증번호 입력 핸들러
@@ -104,19 +126,42 @@ export default function SignUp() {
     setInputCode(e.target.value);
   };
 
-  // 인증번호 확인 함수 (가짜)
-  const handleVerifyCode = () => {
-    if (inputCode === verificationCode) {
+  // 인증번호 확인
+  const handleVerifyCode = async () => {
+    const email = getValues("email");
+    if (!email) {
+      setError("email", { message: "이메일을 입력해주세요." });
+      return;
+    }
+    if (!inputCode) {
+      alertService.showAlert("인증번호를 입력해주세요.", "error");
+      return;
+    }
+    setLoading(true);
+    try {
+      await client.auth.verifyEmailCode({
+        emailAuthVerifyRequest: {
+          email,
+          code: inputCode,
+        },
+      });
       setIsEmailVerified(true);
-    } else {
-      alert("인증번호가 올바르지 않습니다.");
+      alertService.showAlert("이메일 인증이 완료되었습니다.", "success");
+    } catch (e: unknown) {
+      const err = e as Error;
+      alertService.showAlert(
+        err?.message || "인증번호가 올바르지 않습니다.",
+        "error"
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   // 주소 검색 팝업 오픈 함수
   const handleOpenAddressPopup = () => {
     if (!window.daum || !window.daum.Postcode) {
-      alert(
+      alertService.showAlert(
         "주소 검색 서비스를 불러오지 못했습니다. 새로고침 후 다시 시도해주세요."
       );
       return;
@@ -140,6 +185,7 @@ export default function SignUp() {
           }
         }
         setAddress(fullAddress);
+        setValue("address", fullAddress, { shouldValidate: true });
       },
     }).open();
   };
@@ -149,23 +195,43 @@ export default function SignUp() {
     const handleMessage = (event: MessageEvent) => {
       if (event.data && event.data.address) {
         setAddress(event.data.address);
+        setValue("address", event.data.address, { shouldValidate: true });
       }
     };
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, []);
+  }, [setValue]);
 
   // 회원가입 폼 제출 핸들러
-  const onSubmit = (data: SignUpFormData) => {
-    if (!isEmailVerified) {
-      alert("이메일 인증을 완료해주세요.");
-      return;
+  const onSubmit = async (data: SignUpFormData) => {
+    // if (!isEmailVerified) {
+    //   alertService.showAlert("이메일 인증을 완료해주세요.", "error");
+    //   return;
+    // }
+    setLoading(true);
+    try {
+      await client.auth.signup({
+        signupRequest: {
+          memberName: data.name,
+          memberEmail: data.email,
+          memberPassword: data.password,
+          memberAddress: address,
+          memberAddressDetail: data.detailAddress,
+        },
+      });
+
+      alertService.showAlert("회원가입이 완료되었습니다!", "success");
+      router.push("/sign-in");
+    } catch (e) {
+      const err = e as ResponseError;
+      if (err.response.status === 409) {
+        alertService.showAlert("이미 존재하는 이메일입니다.", "error");
+      } else {
+        alertService.showAlert("회원가입에 실패했습니다.", "error");
+      }
+    } finally {
+      setLoading(false);
     }
-    // 주소는 address 상태값 사용
-    const submitData = { ...data, address };
-    console.log("회원가입 데이터:", submitData);
-    alert("회원가입이 완료되었습니다! (콘솔 확인)");
-    router.push("/");
   };
 
   return (
@@ -242,7 +308,11 @@ export default function SignUp() {
                 variant="outlined"
                 color="secondary"
                 onClick={handleSendCode}
-                disabled={isEmailSent && !canResend && !isEmailVerified}
+                disabled={
+                  (isEmailSent && !canResend && !isEmailVerified) ||
+                  loading ||
+                  isEmailVerified
+                }
               >
                 {canResend ? "재전송" : "인증번호 발송"}
               </Button>
@@ -264,6 +334,7 @@ export default function SignUp() {
                   variant="contained"
                   color="secondary"
                   onClick={handleVerifyCode}
+                  disabled={loading}
                 >
                   인증확인
                 </Button>

@@ -13,7 +13,7 @@
  */
 
 
-export const BASE_PATH = "http://api.zzirit.shop".replace(/\/+$/, "");
+export const BASE_PATH = "https://api.zzirit.shop".replace(/\/+$/, "");
 
 export interface ConfigurationParameters {
     basePath?: string; // override base path
