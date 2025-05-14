@@ -1,0 +1,5 @@
+---
+description: 코드 변경사항이 있으면 바로 적용해줘
+globs: 
+alwaysApply: false
+---

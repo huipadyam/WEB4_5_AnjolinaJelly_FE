@@ -9,6 +9,12 @@ import { useSearchParams } from "next/navigation";
 export default function ProductGridSection() {
   const searchParams = useSearchParams();
   const keyword = searchParams.get("keyword") || undefined;
+  const types = searchParams.get("types")
+    ? [searchParams.get("types")!]
+    : undefined;
+  const brands = searchParams.get("brands")
+    ? searchParams.get("brands")!.split(",")
+    : undefined;
   const {
     data,
     fetchNextPage,
@@ -16,7 +22,7 @@ export default function ProductGridSection() {
     isFetchingNextPage,
     isLoading,
     isError,
-  } = useInfiniteItemsQuery({ keyword });
+  } = useInfiniteItemsQuery({ keyword, types, brands });
 
   // Intersection Observer로 스크롤 하단 감지 후 fetchNextPage()
   const loaderRef = useRef<HTMLDivElement | null>(null);
