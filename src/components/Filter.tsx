@@ -25,8 +25,8 @@ export default function Filter() {
   // 상태 관리
   const [types, setTypes] = useState<TypeFetchResponse[]>([]);
   const [brands, setBrands] = useState<BrandFetchResponse[]>([]);
-  const [selectedTypes, setSelectedTypes] = useState<number[]>([]);
-  const [selectedBrands, setSelectedBrands] = useState<number[]>([]);
+  const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
 
   // 상품 종류 불러오기
   useEffect(() => {
@@ -46,33 +46,38 @@ export default function Filter() {
     }
     const fetchBrands = async () => {
       // 여러 타입을 지원하므로, 각 타입별 브랜드를 합침(중복 제거)
-      const brandMap = new Map<number, BrandFetchResponse>();
-      for (const typeId of selectedTypes) {
-        const res = await client.api.findBrandByType({ typeId });
+      const brandMap = new Map<string, BrandFetchResponse>();
+      for (const typeName of selectedTypes) {
+        // typeName을 이용해 typeId를 찾음
+        const typeObj = types.find((t) => t.name === typeName);
+        if (!typeObj?.typeId) continue;
+        const res = await client.api.findBrandByType({
+          typeId: typeObj.typeId,
+        });
         (res.result ?? []).forEach((b) => {
-          if (b.brandId !== undefined) brandMap.set(b.brandId, b);
+          if (b.name) brandMap.set(b.name, b);
         });
       }
       setBrands(Array.from(brandMap.values()));
       // 선택된 브랜드 중, 현재 브랜드 목록에 없는 것은 해제
-      setSelectedBrands((prev) => prev.filter((id) => brandMap.has(id)));
+      setSelectedBrands((prev) => prev.filter((name) => brandMap.has(name)));
     };
     fetchBrands();
-  }, [selectedTypes]);
+  }, [selectedTypes, types]);
 
   // 체크박스 핸들러
-  const handleTypeChange = (typeId: number) => {
+  const handleTypeChange = (typeName: string) => {
     setSelectedTypes((prev) =>
-      prev.includes(typeId)
-        ? prev.filter((id) => id !== typeId)
-        : [...prev, typeId]
+      prev.includes(typeName)
+        ? prev.filter((name) => name !== typeName)
+        : [...prev, typeName]
     );
   };
-  const handleBrandChange = (brandId: number) => {
+  const handleBrandChange = (brandName: string) => {
     setSelectedBrands((prev) =>
-      prev.includes(brandId)
-        ? prev.filter((id) => id !== brandId)
-        : [...prev, brandId]
+      prev.includes(brandName)
+        ? prev.filter((name) => name !== brandName)
+        : [...prev, brandName]
     );
   };
 
@@ -115,9 +120,9 @@ export default function Filter() {
               key={type.typeId}
               control={
                 <Checkbox
-                  checked={selectedTypes.includes(type.typeId ?? -1)}
-                  onChange={() => handleTypeChange(type.typeId ?? -1)}
-                  disabled={type.typeId === undefined}
+                  checked={selectedTypes.includes(type.name ?? "")}
+                  onChange={() => handleTypeChange(type.name ?? "")}
+                  disabled={type.name === undefined}
                 />
               }
               label={type.name}
@@ -139,12 +144,12 @@ export default function Filter() {
           }}
         >
           {types
-            .filter((t) => selectedTypes.includes(t.typeId ?? -1))
+            .filter((t) => selectedTypes.includes(t.name ?? ""))
             .map((t) => (
               <Chip
                 key={t.typeId}
                 label={t.name}
-                onDelete={() => handleTypeChange(t.typeId ?? -1)}
+                onDelete={() => handleTypeChange(t.name ?? "")}
                 size="small"
                 color="primary"
                 sx={{ ml: "0 !important" }}
@@ -169,9 +174,9 @@ export default function Filter() {
                 key={brand.brandId}
                 control={
                   <Checkbox
-                    checked={selectedBrands.includes(brand.brandId ?? -1)}
-                    onChange={() => handleBrandChange(brand.brandId ?? -1)}
-                    disabled={brand.brandId === undefined}
+                    checked={selectedBrands.includes(brand.name ?? "")}
+                    onChange={() => handleBrandChange(brand.name ?? "")}
+                    disabled={brand.name === undefined}
                   />
                 }
                 label={brand.name}
@@ -199,12 +204,12 @@ export default function Filter() {
           }}
         >
           {brands
-            .filter((b) => selectedBrands.includes(b.brandId ?? -1))
+            .filter((b) => selectedBrands.includes(b.name ?? ""))
             .map((b) => (
               <Chip
                 key={b.brandId}
                 label={b.name}
-                onDelete={() => handleBrandChange(b.brandId ?? -1)}
+                onDelete={() => handleBrandChange(b.name ?? "")}
                 size="small"
                 color="primary"
                 sx={{ ml: "0 !important" }}

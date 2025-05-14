@@ -96,19 +96,11 @@ export default function TimeDealSection() {
             900: { slidesPerView: 3 },
           }}
         >
-          {data.map((product) => (
-            <SwiperSlide key={product.itemId}>
-              <ItemCard
-                itemId={product.itemId ?? 0}
-                image={product.imageUrl ?? "/images/placeholder.png"}
-                name={product.brand?.name ?? ""}
-                type={product.type?.name ?? ""}
-                discountedPrice={product.discountedPrice ?? 0}
-                timeDealStatus="TIME_DEAL"
-                endTimeDeal={product.timeDealEnd}
-                originalPrice={product.originalPrice}
-                discount={product.discountRatio}
-              />
+          {data.map((timeDealItem) => (
+            <SwiperSlide key={timeDealItem.timeDealId}>
+              {timeDealItem.items?.map((item) => (
+                <ItemCard key={item.itemId} {...item} />
+              ))}
             </SwiperSlide>
           ))}
         </Swiper>
