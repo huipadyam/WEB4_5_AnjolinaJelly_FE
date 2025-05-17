@@ -16,12 +16,15 @@ import {
   Typography,
   Divider,
   SelectChangeEvent,
+  IconButton,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { Item } from "@/types/admin";
 import { client } from "@/api/zzirit/client";
 import { TypeFetchResponse, BrandFetchResponse } from "@/api/zzirit/models";
 import { alertService } from "@/components/admin/AlertSnackbar";
+import PhotoCamera from "@mui/icons-material/PhotoCamera";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 
 interface ItemEditModalProps {
   open: boolean;
@@ -61,6 +64,11 @@ export default function ItemEditModal({
   });
   const [categories, setCategories] = useState<TypeFetchResponse[]>([]);
   const [brands, setBrands] = useState<BrandFetchResponse[]>([]);
+  // 이미지 관련 상태
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [isImageUpdated, setIsImageUpdated] = useState<boolean>(false);
+  // 선택한 이미지 파일을 저장하는 상태 추가
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
 
   // 상품 종류 목록 가져오기
   useEffect(() => {
@@ -113,6 +121,8 @@ export default function ItemEditModal({
         categoryId,
         brandId: 0, // 카테고리 선택에 따라 브랜드 목록이 변경되므로 초기값은 0
       });
+      setImageUrl(item.image || "");
+      setIsImageUpdated(false); // 모달이 열릴 때마다 이미지 업데이트 상태 초기화
     }
   }, [item, categories]);
 
@@ -145,11 +155,24 @@ export default function ItemEditModal({
     }
   };
 
+  // 이미지 업로드 함수
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      // 선택한 파일을 상태에 저장
+      setSelectedImageFile(file);
+      // 미리보기를 위한 임시 URL 생성
+      const previewUrl = URL.createObjectURL(file);
+      setImageUrl(previewUrl);
+      setIsImageUpdated(true);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!item) return;
 
     try {
-      // API에는 변경 가능한 값(재고, 가격)만 전송
+      // 상품 정보 업데이트 (재고, 가격)
       await client.api.updateItem({
         itemId: formData.id,
         itemUpdateRequest: {
@@ -158,6 +181,34 @@ export default function ItemEditModal({
         },
       });
 
+      // 이미지가 변경되었을 경우에만 이미지 업데이트
+      if (isImageUpdated && selectedImageFile) {
+        try {
+          // 선택한 이미지 파일을 사용하여 이미지 업데이트 (불필요한 다운로드 없음)
+          const rawResponse = await client.api.updateImageRaw({
+            itemId: formData.id,
+            image: selectedImageFile,
+          });
+
+          // 응답 처리
+          const response = await rawResponse.value();
+          if (!response.success) {
+            throw new Error(response.message || "이미지 수정에 실패했습니다.");
+          }
+
+          // 성공 시 이미지 URL 업데이트 (서버에서 받은 URL로)
+          if (response.result?.imageUrl) {
+            setImageUrl(response.result.imageUrl);
+          }
+        } catch (imageError) {
+          console.error("이미지 수정 중 오류 발생:", imageError);
+          alertService.showAlert(
+            "이미지 수정에 실패했습니다. 다시 시도해주세요.",
+            "error"
+          );
+        }
+      }
+
       const uiData: Item = {
         id: item.id,
         name: item.name, // 원래 상품명 유지
@@ -165,7 +216,7 @@ export default function ItemEditModal({
         price: formData.price,
         category: item.category, // 원래 카테고리 유지
         brand: item.brand, // 원래 브랜드 유지
-        image: item.image || "",
+        image: imageUrl, // 업데이트된 이미지 URL
         itemNumber: item.itemNumber || 0,
         selected: item.selected || false,
       };
@@ -186,7 +237,7 @@ export default function ItemEditModal({
 
       // 수정 성공 알림 표시
       alertService.showAlert(
-        `상품 "${item.name}"의 재고와 가격이 성공적으로 수정되었습니다.`,
+        `상품 "${item.name}"의 정보가 성공적으로 수정되었습니다.`,
         "success"
       );
     } catch (error) {
@@ -208,6 +259,101 @@ export default function ItemEditModal({
       <Divider />
       <DialogContent>
         <Box sx={{ mt: 2 }}>
+          {/* 이미지 업로드 섹션 */}
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle1" gutterBottom fontWeight="medium">
+              상품 이미지
+            </Typography>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, my: 2 }}
+            >
+              {/* 현재 이미지 미리보기 */}
+              {imageUrl && (
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: 200,
+                    height: 200,
+                    border: "1px solid #eee",
+                    borderRadius: 1,
+                    overflow: "hidden",
+                    mb: 1,
+                  }}
+                >
+                  <img
+                    src={imageUrl}
+                    alt="preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                  {/* 연필 모양 수정 아이콘 */}
+                  <IconButton
+                    component="label"
+                    size="small"
+                    color="primary"
+                    sx={{
+                      position: "absolute",
+                      top: 10,
+                      right: 10,
+                      backgroundColor: "rgba(255, 255, 255, 0.8)",
+                      "&:hover": {
+                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                      },
+                    }}
+                  >
+                    <ModeEditIcon fontSize="small" />
+                    <input
+                      hidden
+                      accept="image/*"
+                      type="file"
+                      onChange={handleImageChange}
+                    />
+                  </IconButton>
+                </Box>
+              )}
+
+              {/* 이미지가 없는 경우 업로드 영역 표시 */}
+              {!imageUrl && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    width: 200,
+                    height: 200,
+                    border: "1px dashed #bbb",
+                    borderRadius: 1,
+                    cursor: "pointer",
+                  }}
+                  component="label"
+                >
+                  <input
+                    hidden
+                    accept="image/*"
+                    type="file"
+                    onChange={handleImageChange}
+                  />
+                  <PhotoCamera
+                    sx={{ fontSize: 40, color: "text.secondary", mb: 1 }}
+                  />
+                  <Typography variant="body2" color="text.secondary">
+                    이미지 추가
+                  </Typography>
+                </Box>
+              )}
+
+              {isImageUpdated && (
+                <Typography variant="caption" color="primary">
+                  * 이미지가 변경되었습니다. 저장 버튼을 누르면 반영됩니다.
+                </Typography>
+              )}
+            </Box>
+          </Box>
+
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 6 }}>
               <TextField
