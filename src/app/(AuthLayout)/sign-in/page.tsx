@@ -22,6 +22,7 @@ import { Google as GoogleIcon } from "@mui/icons-material";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { alertService } from "@/components/admin/AlertSnackbar";
+import { OAUTH_BASE_URL } from "@/constants/oauth";
 
 // 폼 유효성 검사 스키마 정의
 const loginSchema = z.object({
@@ -254,8 +255,7 @@ export default function SignIn() {
             variant="outlined"
             startIcon={<GoogleIcon />}
             onClick={() => {
-              router.push("/social-sign-up");
-              // TODO: 구글 로그인 구현
+              window.location.href = `${OAUTH_BASE_URL}/google`;
             }}
             sx={{
               borderColor: "#E0E0E0",
@@ -279,8 +279,7 @@ export default function SignIn() {
               <Image src="/kakao-logo.png" alt="Kakao" width={20} height={20} />
             }
             onClick={() => {
-              router.push("/social-sign-up");
-              // TODO: 카카오 로그인 구현
+              window.location.href = `${OAUTH_BASE_URL}/kakao`;
             }}
             sx={{
               backgroundColor: "#FEE500",
@@ -302,8 +301,7 @@ export default function SignIn() {
               <Image src="/naver-logo.png" alt="Naver" width={20} height={20} />
             }
             onClick={() => {
-              router.push("/social-sign-up");
-              // TODO: 네이버 로그인 구현
+              window.location.href = `${OAUTH_BASE_URL}/naver`;
             }}
             sx={{
               backgroundColor: "#03C75A",
