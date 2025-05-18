@@ -5,11 +5,17 @@ import { Item } from "@/types/admin";
 
 interface ItemRowProps {
   item: Item;
+  index: number;
   onSelectOne: (id: number) => void;
   onEdit: (item: Item) => void;
 }
 
-export default function ItemRow({ item, onSelectOne, onEdit }: ItemRowProps) {
+export default function ItemRow({
+  item,
+  index,
+  onSelectOne,
+  onEdit,
+}: ItemRowProps) {
   const formatPrice = (price: number) => {
     return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -47,7 +53,7 @@ export default function ItemRow({ item, onSelectOne, onEdit }: ItemRowProps) {
           onChange={() => onSelectOne(item.id)}
         />
       </TableCell>
-      <TableCell>{item.id}</TableCell>
+      <TableCell>{index + 1}</TableCell>
       <TableCell>
         <Box
           component="img"

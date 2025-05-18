@@ -109,7 +109,7 @@ export default function ItemManagementHeader({
           height: elementHeight,
         }}
       >
-        <Box sx={{ width: 200 }}>
+        <Box sx={{ width: 300 }}>
           <TextField
             select
             fullWidth

@@ -38,6 +38,7 @@ interface ItemEditData {
 
 interface ItemTableProps {
   items: Item[];
+  page: number;
   selectAll: boolean;
   onSelectAll: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSelectOne: (id: number) => void;
@@ -49,6 +50,7 @@ interface ItemTableProps {
 
 export default function ItemTable({
   items,
+  page,
   selectAll,
   onSelectAll,
   onSelectOne,
@@ -194,12 +196,13 @@ export default function ItemTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((item) => (
+            {items.map((item, index) => (
               <ItemRow
                 key={item.id}
                 item={item}
                 onSelectOne={onSelectOne}
                 onEdit={handleEditItem}
+                index={(page - 1) * 10 + index}
               />
             ))}
           </TableBody>

@@ -109,6 +109,7 @@ export default function ItemManagementTab() {
 
       <ItemTable
         items={items}
+        page={itemsCurrentPage}
         selectAll={itemsSelectAll}
         onSelectAll={handleItemsSelectAll}
         onSelectOne={handleItemsSelectOne}
