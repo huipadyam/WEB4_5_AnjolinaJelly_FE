@@ -1,17 +1,14 @@
 "use client";
 import React from "react";
-import { Box, Typography, Button } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { Box, Typography, Button, Stack } from "@mui/material";
 import ItemCard from "./ItemCard";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { useCurrentTimeDealItemsQuery } from "@/queries/item";
 
 export default function TimeDealSection() {
-  const router = useRouter();
-
   // 타임딜 상품 목록 불러오기
   const { data, isLoading, isError } = useCurrentTimeDealItemsQuery();
 
@@ -54,13 +51,6 @@ export default function TimeDealSection() {
         <Typography variant="h5" fontWeight={700} color="secondary.main" mb={2}>
           타임딜 상품
         </Typography>
-        <Button
-          variant="text"
-          sx={{ fontWeight: 600, color: "secondary.main", mb: 2 }}
-          onClick={() => router.push("/")}
-        >
-          전체보기
-        </Button>
       </Box>
       <Box
         sx={{
@@ -96,20 +86,18 @@ export default function TimeDealSection() {
             900: { slidesPerView: 3 },
           }}
         >
-          {data.map((product) => (
-            <SwiperSlide key={product.itemId}>
-              <ItemCard
-                itemId={product.itemId ?? 0}
-                image={product.imageUrl ?? "/images/placeholder.png"}
-                name={product.brand?.name ?? ""}
-                type={product.type?.name ?? ""}
-                discountedPrice={product.discountedPrice ?? 0}
-                timeDealStatus="TIME_DEAL"
-                endTimeDeal={product.timeDealEnd}
-                originalPrice={product.originalPrice}
-                discount={product.discountRatio}
-              />
-            </SwiperSlide>
+          {data.map((timeDealItem) => (
+            <Stack direction="row" spacing={2} key={timeDealItem.timeDealId}>
+              {timeDealItem.items?.slice(0, 3)?.map((item) => (
+                <ItemCard
+                  key={item.itemId}
+                  {...item}
+                  itemStatus="TIME_DEAL"
+                  discountRatio={timeDealItem.discountRatio}
+                  endTimeDeal={timeDealItem.endTime}
+                />
+              ))}
+            </Stack>
           ))}
         </Swiper>
         <Button

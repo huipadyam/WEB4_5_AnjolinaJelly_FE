@@ -138,7 +138,7 @@ export default function ItemManagementHeader({
             }}
           >
             <option value="name">상품 이름</option>
-            <option value="itemId">상품 아이디</option>
+            <option value="itemId">상품 번호</option>
           </TextField>
         </Box>
 

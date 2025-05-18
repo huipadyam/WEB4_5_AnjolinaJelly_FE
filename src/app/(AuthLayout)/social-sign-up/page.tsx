@@ -15,7 +15,6 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { client } from "../../../api/zzirit/client";
-import { SocialSignupDTO } from "../../../api/zzirit/models";
 import { alertService } from "@/components/admin/AlertSnackbar";
 
 const signUpSchema = z
@@ -111,14 +110,15 @@ export default function SignUp() {
 
   // 회원가입 폼 제출 핸들러
   const onSubmit = async (data: SignUpFormData) => {
-    const socialSignupDTO: SocialSignupDTO = {
-      memberName: data.name,
-      memberPassword: data.password,
-      memberAddress: address,
-      memberAddressDetail: data.detailAddress,
-    };
     try {
-      await client.auth.completeSignup({ socialSignupDTO });
+      await client.auth.completeSignup({
+        socialSignupRequest: {
+          memberName: data.name,
+          memberPassword: data.password,
+          memberAddress: address,
+          memberAddressDetail: data.detailAddress,
+        },
+      });
       alertService.showAlert("회원가입이 완료되었습니다!", "success");
       router.push("/");
     } catch (error: unknown) {

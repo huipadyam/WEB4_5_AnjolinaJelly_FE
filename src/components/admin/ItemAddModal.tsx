@@ -41,9 +41,8 @@ export default function ItemAddModal({
   const [typeId, setTypeId] = useState<number | "">("");
   const [brandId, setBrandId] = useState<number | "">("");
 
-  // 이미지 관련 상태
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviewUrls, setImagePreviewUrls] = useState<string[]>([]);
+  // 이미지 관련 상태 (imageUrls만 관리)
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   // 타입 및 브랜드 목록
   const [types, setTypes] = useState<TypeFetchResponse[]>([]);
@@ -109,8 +108,7 @@ export default function ItemAddModal({
     setPrice("");
     setTypeId("");
     setBrandId("");
-    setImages([]);
-    setImagePreviewUrls([]);
+    setImageUrls([]);
     setErrors({
       name: false,
       stockQuantity: false,
@@ -120,38 +118,37 @@ export default function ItemAddModal({
     });
   };
 
-  // 이미지 처리 함수
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // 이미지 업로드 함수 (파일 선택 시 즉시 업로드, 1장만 가능)
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
+      const file = e.target.files[0];
+      try {
+        const formData = new FormData();
+        formData.append("image", file);
+        // client 객체로 하는 요청은 formdata를 사용하지 않고 있음.
+        const response = await fetch(
+          "https://api.zzirit.shop/api/admin/items/image",
+          {
+            method: "POST",
+            body: formData,
+            credentials: "include",
+          }
+        );
 
-      // 최대 3개까지 이미지 추가 가능
-      const newImages = [...images];
-      const newPreviewUrls = [...imagePreviewUrls];
-
-      filesArray.forEach((file) => {
-        if (newImages.length < 3) {
-          newImages.push(file);
-          newPreviewUrls.push(URL.createObjectURL(file));
+        const url = await response.json();
+        // TODO: url 객체 확인 후, imageUrl 뽑아서 set해야함.
+        if (url.result.imageUrl) {
+          setImageUrls([url.result.imageUrl]); // 항상 1장만 저장
         }
-      });
-
-      setImages(newImages);
-      setImagePreviewUrls(newPreviewUrls);
+      } catch {
+        alertService.showAlert("이미지 업로드에 실패했습니다.", "error");
+      }
     }
   };
 
-  // 이미지 삭제 함수
-  const handleRemoveImage = (index: number) => {
-    const newImages = [...images];
-    const newPreviewUrls = [...imagePreviewUrls];
-
-    URL.revokeObjectURL(newPreviewUrls[index]);
-    newImages.splice(index, 1);
-    newPreviewUrls.splice(index, 1);
-
-    setImages(newImages);
-    setImagePreviewUrls(newPreviewUrls);
+  // 이미지 삭제 함수 (1장만 가능하므로 단순화)
+  const handleRemoveImage = () => {
+    setImageUrls([]);
   };
 
   // 유효성 검사 함수
@@ -164,6 +161,7 @@ export default function ItemAddModal({
       price: price === "" || (typeof price === "number" && price < 0),
       typeId: typeId === "",
       brandId: brandId === "",
+      imageUrl: imageUrls.length === 0,
     };
 
     setErrors(newErrors);
@@ -179,31 +177,6 @@ export default function ItemAddModal({
 
     try {
       setIsLoading(true);
-
-      // 이미지가 있으면 먼저 업로드
-      let imageUrl = "";
-      if (images.length > 0) {
-        try {
-          // 이미지 업로드
-          const imageResponse = await client.api.uploadImage({
-            updateImageRequest: {
-              image: images[0],
-            },
-          });
-
-          // 응답에서 이미지 URL 추출
-          if (imageResponse.result && imageResponse.result.imageUrl) {
-            imageUrl = imageResponse.result.imageUrl;
-          }
-        } catch (imageError) {
-          console.error("이미지 업로드 실패:", imageError);
-          alertService.showAlert("이미지 업로드에 실패했습니다.", "error");
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // 상품 등록 (업로드된 이미지 URL 사용)
       await client.api.createItem({
         itemCreateRequest: {
           name,
@@ -211,10 +184,9 @@ export default function ItemAddModal({
           price: price as number,
           typeId: typeId as number,
           brandId: brandId as number,
-          imageUrl: imageUrl, // 업로드된 이미지 URL 사용
+          imageUrl: imageUrls[0],
         },
       });
-
       alertService.showAlert("상품이 성공적으로 등록되었습니다.", "success");
       resetForm();
       onClose();
@@ -258,12 +230,11 @@ export default function ItemAddModal({
           {/* 이미지 업로드 섹션 */}
           <Box>
             <Typography variant="subtitle1" gutterBottom fontWeight="medium">
-              상품 이미지 (최대 3개)
+              상품 이미지 (1장만 업로드 가능)
             </Typography>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, my: 2 }}>
-              {imagePreviewUrls.map((url, index) => (
+              {imageUrls.length === 1 && (
                 <Box
-                  key={index}
                   sx={{
                     position: "relative",
                     width: 150,
@@ -274,8 +245,8 @@ export default function ItemAddModal({
                   }}
                 >
                   <img
-                    src={url}
-                    alt={`preview-${index}`}
+                    src={imageUrls[0]}
+                    alt="preview"
                     style={{
                       width: "100%",
                       height: "100%",
@@ -293,14 +264,13 @@ export default function ItemAddModal({
                         backgroundColor: "rgba(255, 255, 255, 0.9)",
                       },
                     }}
-                    onClick={() => handleRemoveImage(index)}
+                    onClick={handleRemoveImage}
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
-              ))}
-
-              {images.length < 3 && (
+              )}
+              {imageUrls.length === 0 && (
                 <Box
                   sx={{
                     display: "flex",
@@ -330,9 +300,7 @@ export default function ItemAddModal({
                 </Box>
               )}
             </Box>
-            <FormHelperText>
-              이미지는 최대 3개까지 업로드 가능합니다.
-            </FormHelperText>
+            <FormHelperText>이미지는 1장만 업로드 가능합니다.</FormHelperText>
           </Box>
 
           {/* 상품 정보 입력 필드 */}

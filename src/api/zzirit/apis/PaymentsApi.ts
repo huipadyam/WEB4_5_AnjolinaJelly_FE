@@ -15,13 +15,16 @@
 
 import * as runtime from '../runtime';
 import type {
-  BaseResponseEmpty,
+  BaseResponsePaymentConfirmResponse,
+  BaseResponsePaymentInitResponse,
   BaseResponseString,
   PaymentRequest,
 } from '../models/index';
 import {
-    BaseResponseEmptyFromJSON,
-    BaseResponseEmptyToJSON,
+    BaseResponsePaymentConfirmResponseFromJSON,
+    BaseResponsePaymentConfirmResponseToJSON,
+    BaseResponsePaymentInitResponseFromJSON,
+    BaseResponsePaymentInitResponseToJSON,
     BaseResponseStringFromJSON,
     BaseResponseStringToJSON,
     PaymentRequestFromJSON,
@@ -53,7 +56,7 @@ export class PaymentsApi extends runtime.BaseAPI {
      * 결제 성공 시 주문을 확정 처리합니다.
      * 결제 성공
      */
-    async confirmPaymentRaw(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
+    async confirmPaymentRaw(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePaymentConfirmResponse>> {
         if (requestParameters['paymentKey'] == null) {
             throw new runtime.RequiredError(
                 'paymentKey',
@@ -100,20 +103,20 @@ export class PaymentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/payments/toss/success`,
+            path: `/api/payments/success`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePaymentConfirmResponseFromJSON(jsonValue));
     }
 
     /**
      * 결제 성공 시 주문을 확정 처리합니다.
      * 결제 성공
      */
-    async confirmPayment(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
+    async confirmPayment(requestParameters: ConfirmPaymentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePaymentConfirmResponse> {
         const response = await this.confirmPaymentRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -148,7 +151,7 @@ export class PaymentsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/payments/toss/fail`,
+            path: `/api/payments/fail`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -170,7 +173,7 @@ export class PaymentsApi extends runtime.BaseAPI {
      * 결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다.
      * 주문번호 생성
      */
-    async initOrderRaw(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseString>> {
+    async initOrderRaw(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePaymentInitResponse>> {
         if (requestParameters['paymentRequest'] == null) {
             throw new runtime.RequiredError(
                 'paymentRequest',
@@ -200,14 +203,14 @@ export class PaymentsApi extends runtime.BaseAPI {
             body: PaymentRequestToJSON(requestParameters['paymentRequest']),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseStringFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePaymentInitResponseFromJSON(jsonValue));
     }
 
     /**
      * 결제를 위한 주문번호를 생성하고 임시 주문을 저장합니다.
      * 주문번호 생성
      */
-    async initOrder(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseString> {
+    async initOrder(requestParameters: InitOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePaymentInitResponse> {
         const response = await this.initOrderRaw(requestParameters, initOverrides);
         return await response.value();
     }

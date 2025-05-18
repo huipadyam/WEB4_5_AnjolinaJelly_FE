@@ -14,41 +14,37 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * 주문 항목 요청 DTO
  * @export
  * @interface OrderItemCreateRequest
  */
 export interface OrderItemCreateRequest {
     /**
-     * 
+     * 상품 ID
      * @type {number}
      * @memberof OrderItemCreateRequest
      */
-    itemId?: number;
+    itemId: number;
     /**
-     * 
+     * 상품 이름
+     * @type {string}
+     * @memberof OrderItemCreateRequest
+     */
+    itemName: string;
+    /**
+     * 주문 수량
      * @type {number}
      * @memberof OrderItemCreateRequest
      */
     quantity?: number;
-    /**
-     * 
-     * @type {string}
-     * @memberof OrderItemCreateRequest
-     */
-    itemName?: string;
-    /**
-     * 
-     * @type {number}
-     * @memberof OrderItemCreateRequest
-     */
-    price?: number;
 }
 
 /**
  * Check if a given object implements the OrderItemCreateRequest interface.
  */
 export function instanceOfOrderItemCreateRequest(value: object): value is OrderItemCreateRequest {
+    if (!('itemId' in value) || value['itemId'] === undefined) return false;
+    if (!('itemName' in value) || value['itemName'] === undefined) return false;
     return true;
 }
 
@@ -62,10 +58,9 @@ export function OrderItemCreateRequestFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'itemId': json['itemId'] == null ? undefined : json['itemId'],
+        'itemId': json['itemId'],
+        'itemName': json['itemName'],
         'quantity': json['quantity'] == null ? undefined : json['quantity'],
-        'itemName': json['itemName'] == null ? undefined : json['itemName'],
-        'price': json['price'] == null ? undefined : json['price'],
     };
 }
 
@@ -81,9 +76,8 @@ export function OrderItemCreateRequestToJSONTyped(value?: OrderItemCreateRequest
     return {
         
         'itemId': value['itemId'],
-        'quantity': value['quantity'],
         'itemName': value['itemName'],
-        'price': value['price'],
+        'quantity': value['quantity'],
     };
 }
 

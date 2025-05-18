@@ -22,6 +22,7 @@ import type {
   BaseResponseItemFetchResponse,
   BaseResponseListBrandFetchResponse,
   BaseResponseListTypeFetchResponse,
+  BaseResponseObject,
   BaseResponsePageResponseAdminItemFetchResponse,
   BaseResponsePageResponseCurrentTimeDealFetchResponse,
   BaseResponsePageResponseOrderFetchResponse,
@@ -29,10 +30,10 @@ import type {
   BaseResponsePageResponseTimeDealFetchResponse,
   BaseResponseTimeDealCreateResponse,
   CartItemCreateRequest,
+  CartItemDeleteRequest,
   ItemCreateRequest,
   ItemUpdateRequest,
   TimeDealCreateRequest,
-  UpdateImageRequest,
 } from '../models/index';
 import {
     BaseResponseCartFetchResponseFromJSON,
@@ -49,6 +50,8 @@ import {
     BaseResponseListBrandFetchResponseToJSON,
     BaseResponseListTypeFetchResponseFromJSON,
     BaseResponseListTypeFetchResponseToJSON,
+    BaseResponseObjectFromJSON,
+    BaseResponseObjectToJSON,
     BaseResponsePageResponseAdminItemFetchResponseFromJSON,
     BaseResponsePageResponseAdminItemFetchResponseToJSON,
     BaseResponsePageResponseCurrentTimeDealFetchResponseFromJSON,
@@ -63,14 +66,14 @@ import {
     BaseResponseTimeDealCreateResponseToJSON,
     CartItemCreateRequestFromJSON,
     CartItemCreateRequestToJSON,
+    CartItemDeleteRequestFromJSON,
+    CartItemDeleteRequestToJSON,
     ItemCreateRequestFromJSON,
     ItemCreateRequestToJSON,
     ItemUpdateRequestFromJSON,
     ItemUpdateRequestToJSON,
     TimeDealCreateRequestFromJSON,
     TimeDealCreateRequestToJSON,
-    UpdateImageRequestFromJSON,
-    UpdateImageRequestToJSON,
 } from '../models/index';
 
 export interface AddItemToCartRequest {
@@ -100,6 +103,7 @@ export interface DeleteItemRequest {
 export interface FetchAllOrdersRequest {
     page?: number;
     size?: number;
+    sort?: string;
 }
 
 export interface FindBrandByTypeRequest {
@@ -115,9 +119,12 @@ export interface GetCurrentTimeDealsRequest {
     size?: number;
 }
 
+export interface GetItemRequest {
+    itemId: number;
+}
+
 export interface GetItemsRequest {
     name?: string;
-    itemId?: number;
     page?: number;
     size?: number;
 }
@@ -130,9 +137,13 @@ export interface RemoveItemToCartRequest {
     itemId: number;
 }
 
+export interface RemoveSelectedItemsRequest {
+    cartItemDeleteRequest: CartItemDeleteRequest;
+}
+
 export interface SearchRequest {
-    types?: Array<string>;
-    brands?: Array<string>;
+    types?: string;
+    brands?: string;
     keyword?: string;
     sort?: string;
     page?: number;
@@ -149,9 +160,9 @@ export interface SearchTimeDealsRequest {
     size?: number;
 }
 
-export interface UpdateImageOperationRequest {
+export interface UpdateImageRequest {
     itemId: number;
-    updateImageRequest?: UpdateImageRequest;
+    image: Blob;
 }
 
 export interface UpdateItemRequest {
@@ -160,7 +171,7 @@ export interface UpdateItemRequest {
 }
 
 export interface UploadImageRequest {
-    updateImageRequest?: UpdateImageRequest;
+    image: Blob;
 }
 
 /**
@@ -215,8 +226,8 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * orderId에 해당되는 주문을 취소합니다.
-     * 주문 취소 API
+     * 아이디에 해당되는 주문을 취소하고 총 주문 금액을 환불합니다.
+     * 주문 취소 및 환불 API
      */
     async cancelOrderRaw(requestParameters: CancelOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
         if (requestParameters['orderId'] == null) {
@@ -249,8 +260,8 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * orderId에 해당되는 주문을 취소합니다.
-     * 주문 취소 API
+     * 아이디에 해당되는 주문을 취소하고 총 주문 금액을 환불합니다.
+     * 주문 취소 및 환불 API
      */
     async cancelOrder(requestParameters: CancelOrderRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
         const response = await this.cancelOrderRaw(requestParameters, initOverrides);
@@ -436,7 +447,7 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 전체 주문을 페이징 처리하여 최신순으로 조회합니다.
+     * 전체 주문을 페이징 및 정렬 처리해 조회합니다.
      * 주문 전체 조회 API
      */
     async fetchAllOrdersRaw(requestParameters: FetchAllOrdersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseOrderFetchResponse>> {
@@ -448,6 +459,10 @@ export class APIApi extends runtime.BaseAPI {
 
         if (requestParameters['size'] != null) {
             queryParameters['size'] = requestParameters['size'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -471,7 +486,7 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 전체 주문을 페이징 처리하여 최신순으로 조회합니다.
+     * 전체 주문을 페이징 및 정렬 처리해 조회합니다.
      * 주문 전체 조회 API
      */
     async fetchAllOrders(requestParameters: FetchAllOrdersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseOrderFetchResponse> {
@@ -646,18 +661,57 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 관리자가 id/이름으로 상품 목록을 조회합니다.
-     * 관리자 상품 조회 & 검색
+     * 관리자가 id로 상품을 단건 조회합니다.
+     * 관리자 상품 단건 조회
+     */
+    async getItemRaw(requestParameters: GetItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseObject>> {
+        if (requestParameters['itemId'] == null) {
+            throw new runtime.RequiredError(
+                'itemId',
+                'Required parameter "itemId" was null or undefined when calling getItem().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/api/admin/items/{item-id}`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseObjectFromJSON(jsonValue));
+    }
+
+    /**
+     * 관리자가 id로 상품을 단건 조회합니다.
+     * 관리자 상품 단건 조회
+     */
+    async getItem(requestParameters: GetItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseObject> {
+        const response = await this.getItemRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 관리자가 이름으로 상품을 검색 / 상품 목록을 조회합니다.
+     * 관리자 상품 이름 검색 & 목록 조회
      */
     async getItemsRaw(requestParameters: GetItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseAdminItemFetchResponse>> {
         const queryParameters: any = {};
 
         if (requestParameters['name'] != null) {
             queryParameters['name'] = requestParameters['name'];
-        }
-
-        if (requestParameters['itemId'] != null) {
-            queryParameters['itemId'] = requestParameters['itemId'];
         }
 
         if (requestParameters['page'] != null) {
@@ -689,8 +743,8 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 관리자가 id/이름으로 상품 목록을 조회합니다.
-     * 관리자 상품 조회 & 검색
+     * 관리자가 이름으로 상품을 검색 / 상품 목록을 조회합니다.
+     * 관리자 상품 이름 검색 & 목록 조회
      */
     async getItems(requestParameters: GetItemsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseAdminItemFetchResponse> {
         const response = await this.getItemsRaw(requestParameters, initOverrides);
@@ -777,6 +831,42 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
+     * 장바구니의 모든 항목을 제거합니다.
+     * 장바구니 전체 삭제
+     */
+    async removeAllItemsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/api/cart/items/all`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
+    }
+
+    /**
+     * 장바구니의 모든 항목을 제거합니다.
+     * 장바구니 전체 삭제
+     */
+    async removeAllItems(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
+        const response = await this.removeAllItemsRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * 장바구니에서 항목을 제거합니다.
      * 장바구니 항목 삭제
      */
@@ -816,6 +906,52 @@ export class APIApi extends runtime.BaseAPI {
      */
     async removeItemToCart(requestParameters: RemoveItemToCartRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
         const response = await this.removeItemToCartRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * 장바구니에서 선택한 항목들을 제거합니다.
+     * 장바구니 선택 항목 삭제
+     */
+    async removeSelectedItemsRaw(requestParameters: RemoveSelectedItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
+        if (requestParameters['cartItemDeleteRequest'] == null) {
+            throw new runtime.RequiredError(
+                'cartItemDeleteRequest',
+                'Required parameter "cartItemDeleteRequest" was null or undefined when calling removeSelectedItems().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("bearer", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/api/cart/items`,
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CartItemDeleteRequestToJSON(requestParameters['cartItemDeleteRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseEmptyFromJSON(jsonValue));
+    }
+
+    /**
+     * 장바구니에서 선택한 항목들을 제거합니다.
+     * 장바구니 선택 항목 삭제
+     */
+    async removeSelectedItems(requestParameters: RemoveSelectedItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
+        const response = await this.removeSelectedItemsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -947,7 +1083,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 ID로 기존 상품의 이미지를 새 이미지로 교체
      * 관리자 상품 이미지 수정
      */
-    async updateImageRaw(requestParameters: UpdateImageOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseImageUploadResponse>> {
+    async updateImageRaw(requestParameters: UpdateImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseImageUploadResponse>> {
         if (requestParameters['itemId'] == null) {
             throw new runtime.RequiredError(
                 'itemId',
@@ -955,11 +1091,16 @@ export class APIApi extends runtime.BaseAPI {
             );
         }
 
+        if (requestParameters['image'] == null) {
+            throw new runtime.RequiredError(
+                'image',
+                'Required parameter "image" was null or undefined when calling updateImage().'
+            );
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -969,12 +1110,32 @@ export class APIApi extends runtime.BaseAPI {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['image'] != null) {
+            formParams.append('image', requestParameters['image'] as any);
+        }
+
         const response = await this.request({
             path: `/api/admin/items/{itemId}/image`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateImageRequestToJSON(requestParameters['updateImageRequest']),
+            body: formParams,
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseImageUploadResponseFromJSON(jsonValue));
@@ -984,7 +1145,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 ID로 기존 상품의 이미지를 새 이미지로 교체
      * 관리자 상품 이미지 수정
      */
-    async updateImage(requestParameters: UpdateImageOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseImageUploadResponse> {
+    async updateImage(requestParameters: UpdateImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseImageUploadResponse> {
         const response = await this.updateImageRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1047,11 +1208,16 @@ export class APIApi extends runtime.BaseAPI {
      * 관리자 상품 이미지 업로드
      */
     async uploadImageRaw(requestParameters: UploadImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseImageUploadResponse>> {
+        if (requestParameters['image'] == null) {
+            throw new runtime.RequiredError(
+                'image',
+                'Required parameter "image" was null or undefined when calling uploadImage().'
+            );
+        }
+
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -1061,12 +1227,32 @@ export class APIApi extends runtime.BaseAPI {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
+        const consumes: runtime.Consume[] = [
+            { contentType: 'multipart/form-data' },
+        ];
+        // @ts-ignore: canConsumeForm may be unused
+        const canConsumeForm = runtime.canConsumeForm(consumes);
+
+        let formParams: { append(param: string, value: any): any };
+        let useForm = false;
+        // use FormData to transmit files using content-type "multipart/form-data"
+        useForm = canConsumeForm;
+        if (useForm) {
+            formParams = new FormData();
+        } else {
+            formParams = new URLSearchParams();
+        }
+
+        if (requestParameters['image'] != null) {
+            formParams.append('image', requestParameters['image'] as any);
+        }
+
         const response = await this.request({
             path: `/api/admin/items/image`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: UpdateImageRequestToJSON(requestParameters['updateImageRequest']),
+            body: formParams,
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponseImageUploadResponseFromJSON(jsonValue));
@@ -1076,7 +1262,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품 등록 전 이미지를 S3에 업로드하고 URL 반환
      * 관리자 상품 이미지 업로드
      */
-    async uploadImage(requestParameters: UploadImageRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseImageUploadResponse> {
+    async uploadImage(requestParameters: UploadImageRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseImageUploadResponse> {
         const response = await this.uploadImageRaw(requestParameters, initOverrides);
         return await response.value();
     }

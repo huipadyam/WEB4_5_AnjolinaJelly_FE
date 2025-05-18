@@ -59,8 +59,8 @@ export default function OrderPage() {
         })),
         totalAmount: totalPrice,
         shippingRequest: request,
-        address: myPageInfo?.memberAddress,
-        addressDetail: myPageInfo?.memberAddressDetail,
+        address: myPageInfo?.memberAddress ?? "",
+        addressDetail: myPageInfo?.memberAddressDetail ?? "",
       });
       const orderId = res.result; // 주문번호 (string)
 

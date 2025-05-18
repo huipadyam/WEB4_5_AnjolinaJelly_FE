@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-query";
 import { client } from "@/api/zzirit/client";
 import { itemKeys, timeDealKeys } from "./queryKeys";
-import { CurrentTimeDealItem } from "@/api/zzirit/models/CurrentTimeDealItem";
 import { PageResponseSimpleItemFetchResponse } from "@/api/zzirit";
 
 // 상품 상세 조회 쿼리
@@ -39,19 +38,12 @@ export function useAddToCartMutation() {
 
 // 진행 중인 타임딜 상품 목록 쿼리
 export function useCurrentTimeDealItemsQuery() {
-  return useQuery<
-    (CurrentTimeDealItem & { timeDealEnd?: Date; discountRatio?: number })[]
-  >({
+  return useQuery({
     queryKey: timeDealKeys.all,
     queryFn: async () => {
       const res = await client.api.getCurrentTimeDeals();
       if (!res.result || !res.result.content) return [];
-      // 타임딜 정보와 상품 정보를 함께 반환
-      return res.result.content.map((item) => ({
-        ...item,
-        timeDealEnd: item.endTime, // 타임딜 종료시간
-        discountRatio: item.discountRatio, // 타임딜 할인율
-      }));
+      return res.result.content;
     },
   });
 }
@@ -76,8 +68,8 @@ export function useInfiniteItemsQuery(params: InfiniteItemsQueryParams = {}) {
         page,
         size: pageSize,
         keyword,
-        types,
-        brands,
+        types: types?.join(","),
+        brands: brands?.join(","),
         sort,
       });
       return res.result!;
