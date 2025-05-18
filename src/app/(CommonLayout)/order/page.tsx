@@ -16,11 +16,7 @@ import {
 } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useCartQuery } from "@/queries/cart";
-import {
-  useInitOrderMutation,
-  useConfirmPaymentMutation,
-  useFailPaymentMutation,
-} from "@/queries/order";
+import { useInitOrderMutation } from "@/queries/order";
 import { useGetMyPageInfo } from "@/queries/member";
 import ImageWithFallback from "@/components/ImageWithFallback";
 import { loadTossPayments } from "@tosspayments/tosspayments-sdk";
