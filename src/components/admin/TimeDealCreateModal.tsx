@@ -29,6 +29,7 @@ import { client } from "@/api/zzirit/client";
 import { alertService } from "@/components/admin/AlertSnackbar";
 import { Item } from "@/types/admin";
 import { TimeDealCreateRequest } from "@/api/zzirit/models";
+import { ResponseError } from "@/api/zzirit";
 
 interface TimeDealCreateModalProps {
   open: boolean;
@@ -178,8 +179,9 @@ export default function TimeDealCreateModal({
       setEndTime(new Date(Date.now() + 24 * 60 * 60 * 1000));
       setItems([]);
     } catch (error) {
-      console.error("타임딜 생성 중 오류 발생:", error);
-      alertService.showAlert("타임딜 생성 중 오류가 발생했습니다.", "error");
+      const err = error as ResponseError;
+      const message = await err.response.json();
+      alertService.showAlert(message.message, "error");
     } finally {
       setLoading(false);
     }
