@@ -68,8 +68,8 @@ export function useInfiniteItemsQuery(params: InfiniteItemsQueryParams = {}) {
         page,
         size: pageSize,
         keyword,
-        types,
-        brands,
+        types: types?.join(","),
+        brands: brands?.join(","),
         sort,
       });
       return res.result!;

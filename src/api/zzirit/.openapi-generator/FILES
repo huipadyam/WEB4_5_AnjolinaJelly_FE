@@ -13,16 +13,20 @@ models/BaseResponseItemFetchResponse.ts
 models/BaseResponseListBrandFetchResponse.ts
 models/BaseResponseListTypeFetchResponse.ts
 models/BaseResponseMyPageInfoResponse.ts
+models/BaseResponseObject.ts
 models/BaseResponsePageResponseAdminItemFetchResponse.ts
 models/BaseResponsePageResponseCurrentTimeDealFetchResponse.ts
 models/BaseResponsePageResponseOrderFetchResponse.ts
 models/BaseResponsePageResponseSimpleItemFetchResponse.ts
 models/BaseResponsePageResponseTimeDealFetchResponse.ts
+models/BaseResponsePaymentConfirmResponse.ts
+models/BaseResponsePaymentInitResponse.ts
 models/BaseResponseString.ts
 models/BaseResponseTimeDealCreateResponse.ts
 models/BrandFetchResponse.ts
 models/CartFetchResponse.ts
 models/CartItemCreateRequest.ts
+models/CartItemDeleteRequest.ts
 models/CartItemFetchResponse.ts
 models/CurrentTimeDealFetchResponse.ts
 models/CurrentTimeDealItem.ts
@@ -41,6 +45,8 @@ models/PageResponseCurrentTimeDealFetchResponse.ts
 models/PageResponseOrderFetchResponse.ts
 models/PageResponseSimpleItemFetchResponse.ts
 models/PageResponseTimeDealFetchResponse.ts
+models/PaymentConfirmResponse.ts
+models/PaymentInitResponse.ts
 models/PaymentRequest.ts
 models/SignupRequest.ts
 models/SimpleItemFetchResponse.ts
@@ -52,6 +58,5 @@ models/TimeDealCreateResponse.ts
 models/TimeDealFetchItem.ts
 models/TimeDealFetchResponse.ts
 models/TypeFetchResponse.ts
-models/UpdateImageRequest.ts
 models/index.ts
 runtime.ts

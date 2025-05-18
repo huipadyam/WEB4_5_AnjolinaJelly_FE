@@ -22,7 +22,7 @@ import {
 } from './OrderItemCreateRequest';
 
 /**
- * 
+ * 결제 요청 DTO
  * @export
  * @interface PaymentRequest
  */
@@ -32,27 +32,27 @@ export interface PaymentRequest {
      * @type {Array<OrderItemCreateRequest>}
      * @memberof PaymentRequest
      */
-    orderItems?: Array<OrderItemCreateRequest>;
+    orderItems: Array<OrderItemCreateRequest>;
     /**
-     * 
+     * 총 결제 금액 (단위: 원)
      * @type {number}
      * @memberof PaymentRequest
      */
     totalAmount?: number;
     /**
-     * 
+     * 배송 요청사항
      * @type {string}
      * @memberof PaymentRequest
      */
     shippingRequest?: string;
     /**
-     * 
+     * 기본 주소
      * @type {string}
      * @memberof PaymentRequest
      */
-    address?: string;
+    address: string;
     /**
-     * 
+     * 상세 주소
      * @type {string}
      * @memberof PaymentRequest
      */
@@ -63,6 +63,8 @@ export interface PaymentRequest {
  * Check if a given object implements the PaymentRequest interface.
  */
 export function instanceOfPaymentRequest(value: object): value is PaymentRequest {
+    if (!('orderItems' in value) || value['orderItems'] === undefined) return false;
+    if (!('address' in value) || value['address'] === undefined) return false;
     return true;
 }
 
@@ -76,10 +78,10 @@ export function PaymentRequestFromJSONTyped(json: any, ignoreDiscriminator: bool
     }
     return {
         
-        'orderItems': json['orderItems'] == null ? undefined : ((json['orderItems'] as Array<any>).map(OrderItemCreateRequestFromJSON)),
+        'orderItems': ((json['orderItems'] as Array<any>).map(OrderItemCreateRequestFromJSON)),
         'totalAmount': json['totalAmount'] == null ? undefined : json['totalAmount'],
         'shippingRequest': json['shippingRequest'] == null ? undefined : json['shippingRequest'],
-        'address': json['address'] == null ? undefined : json['address'],
+        'address': json['address'],
         'addressDetail': json['addressDetail'] == null ? undefined : json['addressDetail'],
     };
 }
@@ -95,7 +97,7 @@ export function PaymentRequestToJSONTyped(value?: PaymentRequest | null, ignoreD
 
     return {
         
-        'orderItems': value['orderItems'] == null ? undefined : ((value['orderItems'] as Array<any>).map(OrderItemCreateRequestToJSON)),
+        'orderItems': ((value['orderItems'] as Array<any>).map(OrderItemCreateRequestToJSON)),
         'totalAmount': value['totalAmount'],
         'shippingRequest': value['shippingRequest'],
         'address': value['address'],
