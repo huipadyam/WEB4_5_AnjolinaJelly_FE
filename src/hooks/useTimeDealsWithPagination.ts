@@ -16,7 +16,7 @@ export interface TimeDeal {
   timeDealName: string;
   startTime: string;
   endTime: string;
-  status: "ONGOING" | "UPCOMING" | "ENDED";
+  status: "SCHEDULED" | "ONGOING" | "ENDED";
   discountRate: number;
   items: TimeDealItem[];
   selected?: boolean;
@@ -44,7 +44,7 @@ export function useTimeDealsWithPagination(initialPage = 1) {
 
   const fetchTimeDeals = useCallback(async () => {
     try {
-      setLoading(true);
+      // setLoading(true);
       setError(null);
 
       // 검색 파라미터 설정
@@ -80,10 +80,10 @@ export function useTimeDealsWithPagination(initialPage = 1) {
               startTime: deal.startTime ? deal.startTime.toString() : "",
               endTime: deal.endTime ? deal.endTime.toString() : "",
               status: (deal.status || "ENDED") as
+                | "SCHEDULED"
                 | "ONGOING"
-                | "UPCOMING"
                 | "ENDED",
-              discountRate: deal.discountRatio || 0, // discountRatio가 올바른 필드명
+              discountRate: deal.discountRatio || 0,
               items: timeDealItems,
               selected: false,
             };

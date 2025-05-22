@@ -38,7 +38,7 @@ export interface PaymentRequest {
      * @type {number}
      * @memberof PaymentRequest
      */
-    totalAmount?: number;
+    totalAmount: number;
     /**
      * 배송 요청사항
      * @type {string}
@@ -64,6 +64,7 @@ export interface PaymentRequest {
  */
 export function instanceOfPaymentRequest(value: object): value is PaymentRequest {
     if (!('orderItems' in value) || value['orderItems'] === undefined) return false;
+    if (!('totalAmount' in value) || value['totalAmount'] === undefined) return false;
     if (!('address' in value) || value['address'] === undefined) return false;
     return true;
 }
@@ -79,7 +80,7 @@ export function PaymentRequestFromJSONTyped(json: any, ignoreDiscriminator: bool
     return {
         
         'orderItems': ((json['orderItems'] as Array<any>).map(OrderItemCreateRequestFromJSON)),
-        'totalAmount': json['totalAmount'] == null ? undefined : json['totalAmount'],
+        'totalAmount': json['totalAmount'],
         'shippingRequest': json['shippingRequest'] == null ? undefined : json['shippingRequest'],
         'address': json['address'],
         'addressDetail': json['addressDetail'] == null ? undefined : json['addressDetail'],

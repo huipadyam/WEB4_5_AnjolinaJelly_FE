@@ -14,9 +14,9 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { client } from "../../../api/zzirit/client";
 import { alertService } from "@/components/admin/AlertSnackbar";
 import { ResponseError } from "@/api/zzirit";
+import { client } from "@/api/zzirit/client";
 
 const signUpSchema = z
   .object({

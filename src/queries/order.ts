@@ -9,6 +9,7 @@ import { PaymentRequest } from "@/api/zzirit/models/PaymentRequest";
 import { orderKeys } from "./queryKeys";
 import type { PageResponseOrderFetchResponse } from "@/api/zzirit/models/PageResponseOrderFetchResponse";
 import type { InfiniteData } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 // 결제(주문 생성) mutation
 export function useInitOrderMutation() {
@@ -72,7 +73,7 @@ export function useGetMyOrders() {
     queryFn: async () => {
       return client.api.fetchAllOrders();
     },
-    select: (data) => data.result,
+    select: (data) => data.result?.content,
   });
 }
 
@@ -97,5 +98,47 @@ export function useGetMyOrdersInfinite() {
       return (lastPage.pageNumber ?? 0) + 1;
     },
     initialPageParam: 0,
+  });
+}
+
+export function useConfirmPayment(
+  orderId: string,
+  paymentKey: string,
+  amount: string
+) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    if (!orderId || !paymentKey || !amount) return;
+
+    const confirmPayment = async () => {
+      setIsLoading(true);
+      try {
+        await client.payments.confirmPayment({
+          orderId,
+          paymentKey,
+          amount,
+        });
+      } catch (err: unknown) {
+        console.error(err);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    confirmPayment();
+  }, [orderId, paymentKey, amount]);
+
+  return { isLoading, isError };
+}
+
+export function useFailPayment(orderId: string) {
+  return useQuery({
+    queryKey: orderKeys.failPayment(orderId),
+    queryFn: async () => {
+      return client.payments.failPayment({ orderId });
+    },
   });
 }
