@@ -72,7 +72,7 @@ export function useGetMyOrders() {
     queryFn: async () => {
       return client.api.fetchAllOrders();
     },
-    select: (data) => data.result,
+    select: (data) => data.result?.content,
   });
 }
 
@@ -97,5 +97,32 @@ export function useGetMyOrdersInfinite() {
       return (lastPage.pageNumber ?? 0) + 1;
     },
     initialPageParam: 0,
+  });
+}
+
+export function useConfirmPayment(
+  orderId: string,
+  paymentKey: string,
+  amount: string
+) {
+  return useQuery({
+    queryKey: orderKeys.confirmPayment(orderId, paymentKey, amount),
+    queryFn: async () => {
+      return client.payments.confirmPayment({
+        orderId,
+        paymentKey,
+        amount,
+      });
+    },
+    enabled: !!orderId && !!paymentKey && !!amount,
+  });
+}
+
+export function useFailPayment(orderId: string) {
+  return useQuery({
+    queryKey: orderKeys.failPayment(orderId),
+    queryFn: async () => {
+      return client.payments.failPayment({ orderId });
+    },
   });
 }

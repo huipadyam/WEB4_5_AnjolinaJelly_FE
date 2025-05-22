@@ -17,4 +17,8 @@ export const cartKeys = {
 
 export const orderKeys = {
   all: ["orders"] as const,
+  confirmPayment: (orderId: string, paymentKey: string, amount: string) =>
+    [...orderKeys.all, "confirmPayment", orderId, paymentKey, amount] as const,
+  failPayment: (orderId: string) =>
+    [...orderKeys.all, "failPayment", orderId] as const,
 };

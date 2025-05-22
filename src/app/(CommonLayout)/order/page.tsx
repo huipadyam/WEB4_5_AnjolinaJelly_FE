@@ -79,19 +79,28 @@ export default function OrderPage() {
         addressDetail: myPageInfo?.memberAddressDetail ?? "",
       });
 
+      console.log(res.result);
       const orderId = res.result?.orderId;
       if (!orderId) return;
-      const tossPayments = await loadTossPayments(clientKey);
-      const widgets = tossPayments.widgets({ customerKey: ANONYMOUS });
+      try {
+        const tossPayments = await loadTossPayments(clientKey);
+        const payment = tossPayments.payment({ customerKey: ANONYMOUS });
 
-      await widgets.requestPayment({
-        // amount: totalPrice,
-        orderId: orderId,
-        orderName: "주문 결제",
-        customerName: myPageInfo?.memberName ?? "",
-        successUrl: "http://localhost:3000/payment/success",
-        failUrl: `http://localhost:3000/payment/fail?orderId=${orderId}`,
-      });
+        await payment.requestPayment({
+          method: "CARD",
+          amount: {
+            value: res?.result?.amount ?? 0,
+            currency: "KRW",
+          },
+          orderId: orderId,
+          orderName: "주문 결제",
+          customerName: myPageInfo?.memberName ?? "",
+          successUrl: "http://localhost:3000/payment/success",
+          failUrl: `http://localhost:3000/payment/fail?orderId=${orderId}`,
+        });
+      } catch (e) {
+        console.error(e);
+      }
       // // 토스페이 결제창 연동 예시 (window.open 또는 tossPayments SDK)
       // const paymentUrl = `/mock-toss-pay?orderId=${orderId}&amount=${totalPrice}`;
       // window.open(paymentUrl, "_blank", "width=500,height=700");
