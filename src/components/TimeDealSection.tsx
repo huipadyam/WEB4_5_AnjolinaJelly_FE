@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
-import { Box, Typography, Button, Stack } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import ItemCard from "./ItemCard";
-import { Swiper } from "swiper/react";
+import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -86,19 +86,18 @@ export default function TimeDealSection() {
             900: { slidesPerView: 3 },
           }}
         >
-          <Stack direction="row" spacing={2}>
-            {data.map((timeDealItem) =>
-              timeDealItem.items?.map((item) => (
+          {data.map((timeDealItem) =>
+            timeDealItem.items?.map((item) => (
+              <SwiperSlide key={item.itemId}>
                 <ItemCard
-                  key={item.itemId}
                   {...item}
                   itemStatus="TIME_DEAL"
                   discountRatio={timeDealItem.discountRatio}
                   endTimeDeal={timeDealItem.endTime}
                 />
-              ))
-            )}
-          </Stack>
+              </SwiperSlide>
+            ))
+          )}
         </Swiper>
         <Button
           className="swiper-button-next custom-swiper-nav"
