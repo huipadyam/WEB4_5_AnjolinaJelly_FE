@@ -9,6 +9,7 @@ import { PaymentRequest } from "@/api/zzirit/models/PaymentRequest";
 import { orderKeys } from "./queryKeys";
 import type { PageResponseOrderFetchResponse } from "@/api/zzirit/models/PageResponseOrderFetchResponse";
 import type { InfiniteData } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 // 결제(주문 생성) mutation
 export function useInitOrderMutation() {
@@ -105,17 +106,32 @@ export function useConfirmPayment(
   paymentKey: string,
   amount: string
 ) {
-  return useQuery({
-    queryKey: orderKeys.confirmPayment(orderId, paymentKey, amount),
-    queryFn: async () => {
-      return client.payments.confirmPayment({
-        orderId,
-        paymentKey,
-        amount,
-      });
-    },
-    enabled: !!orderId && !!paymentKey && !!amount,
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    if (!orderId || !paymentKey || !amount) return;
+
+    const confirmPayment = async () => {
+      setIsLoading(true);
+      try {
+        await client.payments.confirmPayment({
+          orderId,
+          paymentKey,
+          amount,
+        });
+      } catch (err: unknown) {
+        console.error(err);
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    confirmPayment();
+  }, [orderId, paymentKey, amount]);
+
+  return { isLoading, isError };
 }
 
 export function useFailPayment(orderId: string) {
