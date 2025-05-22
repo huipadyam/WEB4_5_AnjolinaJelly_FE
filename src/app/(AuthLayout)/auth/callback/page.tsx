@@ -15,12 +15,12 @@ import {
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { alertService } from "@/components/admin/AlertSnackbar";
+import { ResponseError } from "@/api/zzirit";
 import { client } from "@/api/zzirit/client";
 
 const signUpSchema = z
   .object({
     name: z.string().min(1, { message: "이름을 입력해주세요." }),
-    email: z.string().email({ message: "올바른 이메일 형식이 아닙니다." }),
     password: z
       .string()
       .min(8, { message: "비밀번호는 최소 8자 이상이어야 합니다." }),
@@ -110,6 +110,7 @@ export default function SignUp() {
 
   // 회원가입 폼 제출 핸들러
   const onSubmit = async (data: SignUpFormData) => {
+    console.log(data);
     try {
       await client.auth.completeSignup({
         socialSignupRequest: {
@@ -122,11 +123,9 @@ export default function SignUp() {
       alertService.showAlert("회원가입이 완료되었습니다!", "success");
       router.push("/");
     } catch (error: unknown) {
-      let message = "회원가입에 실패했습니다. 다시 시도해주세요.";
-      if (error instanceof Error) {
-        message = error.message;
-      }
-      alertService.showAlert(message, "error");
+      const err = error as ResponseError;
+      const message = await err.response.json();
+      alertService.showAlert(message.message, "error");
     }
   };
 
