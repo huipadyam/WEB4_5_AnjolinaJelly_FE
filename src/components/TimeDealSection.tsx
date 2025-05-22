@@ -86,9 +86,9 @@ export default function TimeDealSection() {
             900: { slidesPerView: 3 },
           }}
         >
-          {data.map((timeDealItem) => (
-            <Stack direction="row" spacing={2} key={timeDealItem.timeDealId}>
-              {timeDealItem.items?.slice(0, 3)?.map((item) => (
+          <Stack direction="row" spacing={2}>
+            {data.map((timeDealItem) =>
+              timeDealItem.items?.map((item) => (
                 <ItemCard
                   key={item.itemId}
                   {...item}
@@ -96,9 +96,9 @@ export default function TimeDealSection() {
                   discountRatio={timeDealItem.discountRatio}
                   endTimeDeal={timeDealItem.endTime}
                 />
-              ))}
-            </Stack>
-          ))}
+              ))
+            )}
+          </Stack>
         </Swiper>
         <Button
           className="swiper-button-next custom-swiper-nav"
