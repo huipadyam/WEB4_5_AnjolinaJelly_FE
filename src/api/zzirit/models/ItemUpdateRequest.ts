@@ -31,6 +31,12 @@ export interface ItemUpdateRequest {
      * @memberof ItemUpdateRequest
      */
     price?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof ItemUpdateRequest
+     */
+    imageUrl?: string;
 }
 
 /**
@@ -52,6 +58,7 @@ export function ItemUpdateRequestFromJSONTyped(json: any, ignoreDiscriminator: b
         
         'stockQuantity': json['stockQuantity'] == null ? undefined : json['stockQuantity'],
         'price': json['price'] == null ? undefined : json['price'],
+        'imageUrl': json['imageUrl'] == null ? undefined : json['imageUrl'],
     };
 }
 
@@ -68,6 +75,7 @@ export function ItemUpdateRequestToJSONTyped(value?: ItemUpdateRequest | null, i
         
         'stockQuantity': value['stockQuantity'],
         'price': value['price'],
+        'imageUrl': value['imageUrl'],
     };
 }
 

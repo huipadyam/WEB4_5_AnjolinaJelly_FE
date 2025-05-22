@@ -125,6 +125,7 @@ export interface GetItemRequest {
 
 export interface GetItemsRequest {
     name?: string;
+    sort?: string;
     page?: number;
     size?: number;
 }
@@ -428,7 +429,7 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/admin/items/{itemId}`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/admin/items/{item-id}`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -712,6 +713,10 @@ export class APIApi extends runtime.BaseAPI {
 
         if (requestParameters['name'] != null) {
             queryParameters['name'] = requestParameters['name'];
+        }
+
+        if (requestParameters['sort'] != null) {
+            queryParameters['sort'] = requestParameters['sort'];
         }
 
         if (requestParameters['page'] != null) {
@@ -1131,7 +1136,7 @@ export class APIApi extends runtime.BaseAPI {
         }
 
         const response = await this.request({
-            path: `/api/admin/items/{itemId}/image`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/admin/items/{item-id}/image`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -1151,7 +1156,7 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 관리자가 id로 상품(재고, 가격)을 수정합니다.
+     * 관리자가 id로 상품(재고, 가격, 이미지)을 수정합니다.
      * 관리자 상품 수정
      */
     async updateItemRaw(requestParameters: UpdateItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponseEmpty>> {
@@ -1184,7 +1189,7 @@ export class APIApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/api/admin/items/{itemId}`.replace(`{${"itemId"}}`, encodeURIComponent(String(requestParameters['itemId']))),
+            path: `/api/admin/items/{item-id}`.replace(`{${"item-id"}}`, encodeURIComponent(String(requestParameters['itemId']))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
@@ -1195,7 +1200,7 @@ export class APIApi extends runtime.BaseAPI {
     }
 
     /**
-     * 관리자가 id로 상품(재고, 가격)을 수정합니다.
+     * 관리자가 id로 상품(재고, 가격, 이미지)을 수정합니다.
      * 관리자 상품 수정
      */
     async updateItem(requestParameters: UpdateItemRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponseEmpty> {
