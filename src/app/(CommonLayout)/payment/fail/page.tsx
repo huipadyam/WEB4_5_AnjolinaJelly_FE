@@ -1,3 +1,5 @@
+"use client";
+
 import { Box, Typography, Button, Stack, Paper } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useFailPayment } from "@/queries/order";
