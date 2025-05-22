@@ -44,7 +44,7 @@ export default function TimeDealRow({
           color: "white",
           bgcolor: theme.palette.success.main,
         };
-      case "UPCOMING":
+      case "SCHEDULED":
         return {
           text: "예정됨",
           color: "white",

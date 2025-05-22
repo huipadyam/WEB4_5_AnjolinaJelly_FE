@@ -27,7 +27,7 @@ export default function TimeDealDetailPanel({
     switch (status) {
       case "ONGOING":
         return "success";
-      case "UPCOMING":
+      case "SCHEDULED":
         return "info";
       case "ENDED":
         return "error";
@@ -41,7 +41,7 @@ export default function TimeDealDetailPanel({
     switch (status) {
       case "ONGOING":
         return "진행 중";
-      case "UPCOMING":
+      case "SCHEDULED":
         return "예정됨";
       case "ENDED":
         return "종료됨";

@@ -78,24 +78,58 @@ export function useItemsWithPagination(initialPage = 1) {
   const fetchItems = useCallback(async () => {
     try {
       if (items.length > 0) {
-        setIsPageChanging(true);
+        // setIsPageChanging(true);
       } else {
         setLoading(true);
       }
       setError(null);
 
-      // 검색 파라미터 설정
+      // 상품번호로 검색하는 경우 단건 조회 API 사용
+      if (activeSearchField === "itemId" && activeSearchQuery) {
+        try {
+          const itemId = parseInt(activeSearchQuery);
+          if (isNaN(itemId)) {
+            throw new Error("유효하지 않은 상품번호입니다.");
+          }
+
+          const response = await client.api.getItem({ itemId });
+
+          if (response.success && response.result) {
+            const item: AdminItemFetchResponse = response.result;
+            const singleItem = {
+              id: item.id || 0,
+              image: item.imageUrl || "",
+              name: item.name || "",
+              itemNumber: item.id || 0,
+              stock: item.stockQuantity || 0,
+              category: item.type || "",
+              brand: item.brand || "",
+              price: item.price || 0,
+              selected: false,
+            };
+            setItems([singleItem]);
+            setTotalPages(1);
+          }
+        } catch (err) {
+          setError(
+            err instanceof Error ? err : new Error("상품을 찾을 수 없습니다.")
+          );
+          setItems([]);
+          setTotalPages(0);
+        }
+        return;
+      }
+
+      // 일반 검색 또는 전체 목록 조회
       const params = {
-        page: currentPage - 1, // API는 0부터 시작하는 페이지 인덱스 사용
+        page: currentPage - 1,
         size: 10,
       } as Record<string, string | number>;
 
-      // 검색어가 있는 경우 검색 필드에 따라 파라미터 추가
       if (activeSearchQuery) {
         params[activeSearchField] = activeSearchQuery;
       }
 
-      // APIApi 클라이언트 사용
       const response: BaseResponsePageResponseAdminItemFetchResponse =
         await client.api.getItems(params);
 
@@ -127,7 +161,7 @@ export function useItemsWithPagination(initialPage = 1) {
       console.error("상품 데이터를 불러오는 데 실패했습니다:", err);
     } finally {
       setLoading(false);
-      setIsPageChanging(false);
+      // setIsPageChanging(false);
     }
   }, [currentPage, activeSearchField, activeSearchQuery]);
 

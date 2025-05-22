@@ -172,51 +172,49 @@ export default function ItemEditModal({
     if (!item) return;
 
     try {
-      // 상품 정보 업데이트 (재고, 가격)
+      let updatedImageUrl = imageUrl;
+
+      // 이미지가 변경되었을 경우에만 이미지 업로드
+      if (isImageUpdated && selectedImageFile) {
+        try {
+          // 이미지 업로드 API 호출
+          const response = await client.api.uploadImage({
+            image: selectedImageFile,
+          });
+
+          if (!response.success || !response.result?.imageUrl) {
+            throw new Error("이미지 업로드에 실패했습니다.");
+          }
+
+          updatedImageUrl = response.result.imageUrl;
+        } catch (imageError) {
+          console.error("이미지 업로드 중 오류 발생:", imageError);
+          alertService.showAlert(
+            "이미지 업로드에 실패했습니다. 다시 시도해주세요.",
+            "error"
+          );
+          return;
+        }
+      }
+
+      // 상품 정보 업데이트
       await client.api.updateItem({
         itemId: formData.id,
         itemUpdateRequest: {
           stockQuantity: formData.stock,
           price: formData.price,
+          imageUrl: updatedImageUrl, // 업데이트된 이미지 URL 포함
         },
       });
 
-      // 이미지가 변경되었을 경우에만 이미지 업데이트
-      if (isImageUpdated && selectedImageFile) {
-        try {
-          // 선택한 이미지 파일을 사용하여 이미지 업데이트 (불필요한 다운로드 없음)
-          const rawResponse = await client.api.updateImageRaw({
-            itemId: formData.id,
-            image: selectedImageFile,
-          });
-
-          // 응답 처리
-          const response = await rawResponse.value();
-          if (!response.success) {
-            throw new Error(response.message || "이미지 수정에 실패했습니다.");
-          }
-
-          // 성공 시 이미지 URL 업데이트 (서버에서 받은 URL로)
-          if (response.result?.imageUrl) {
-            setImageUrl(response.result.imageUrl);
-          }
-        } catch (imageError) {
-          console.error("이미지 수정 중 오류 발생:", imageError);
-          alertService.showAlert(
-            "이미지 수정에 실패했습니다. 다시 시도해주세요.",
-            "error"
-          );
-        }
-      }
-
       const uiData: Item = {
         id: item.id,
-        name: item.name, // 원래 상품명 유지
+        name: item.name,
         stock: formData.stock,
         price: formData.price,
-        category: item.category, // 원래 카테고리 유지
-        brand: item.brand, // 원래 브랜드 유지
-        image: imageUrl, // 업데이트된 이미지 URL
+        category: item.category,
+        brand: item.brand,
+        image: updatedImageUrl,
         itemNumber: item.itemNumber || 0,
         selected: item.selected || false,
       };
@@ -235,14 +233,12 @@ export default function ItemEditModal({
         ui: uiData,
       });
 
-      // 수정 성공 알림 표시
       alertService.showAlert(
         `상품 "${item.name}"의 정보가 성공적으로 수정되었습니다.`,
         "success"
       );
     } catch (error) {
       console.error("상품 업데이트 중 오류 발생:", error);
-      // 오류 처리 로직 추가
       alertService.showAlert("상품 수정 중 오류가 발생했습니다.", "error");
     }
   };
