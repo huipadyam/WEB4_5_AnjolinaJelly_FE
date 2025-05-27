@@ -46,27 +46,6 @@ export default function OrderPage() {
   // 결제하기 버튼 클릭
   const handleOrder = async () => {
     try {
-      // 주문 생성(결제용 주문번호 발급)
-      // const res = await fetch(`https://api.zzirit.shop/api/payments/init`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     orderItems: cartItems.map((item) => ({
-      //       itemId: item.itemId,
-      //       quantity: item.quantity,
-      //       itemName: item.name,
-      //     })),
-      //     totalAmount: totalPrice,
-      //     shippingRequest: request,
-      //     address: myPageInfo?.memberAddress ?? "",
-      //     addressDetail: myPageInfo?.memberAddressDetail ?? "",
-      //   }),
-      //   credentials: "include",
-      // });
-      // const orderId = (await res.json()).orderId;
-
       const res = await initOrderMutation.mutateAsync({
         orderItems: cartItems.map((item) => ({
           itemId: item.itemId,
@@ -95,40 +74,12 @@ export default function OrderPage() {
           orderId: orderId,
           orderName: "주문 결제",
           customerName: myPageInfo?.memberName ?? "",
-          successUrl: "http://localhost:3000/payment/success",
-          failUrl: `http://localhost:3000/payment/fail?orderId=${orderId}`,
+          successUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/payment/success`,
+          failUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/payment/fail?orderId=${orderId}`,
         });
       } catch (e) {
         console.error(e);
       }
-      // // 토스페이 결제창 연동 예시 (window.open 또는 tossPayments SDK)
-      // const paymentUrl = `/mock-toss-pay?orderId=${orderId}&amount=${totalPrice}`;
-      // window.open(paymentUrl, "_blank", "width=500,height=700");
-
-      // 결제 결과를 메시지로 받는 예시 (실제 서비스는 결제 콜백 URL 활용)
-      // window.addEventListener(
-      //   "message",
-      //   async (event) => {
-      //     if (event.data?.paymentSuccess) {
-      //       // 결제 성공 시 결제 확정 API 호출
-      //       await confirmPaymentMutation.mutateAsync({
-      //         paymentKey: event.data.paymentKey,
-      //         orderId: event.data.orderId,
-      //         amount: String(totalPrice),
-      //       });
-      //       setOpen(true);
-      //     } else if (event.data?.paymentFail) {
-      //       // 결제 실패 시 결제 실패 API 호출
-      //       await failPaymentMutation.mutateAsync({
-      //         code: event.data.code,
-      //         message: event.data.message,
-      //         orderId: event.data.orderId,
-      //       });
-      //       setPaymentError("결제에 실패했습니다. 다시 시도해주세요.");
-      //     }
-      //   },
-      //   { once: true }
-      // );
     } catch {
       setPaymentError("주문 생성에 실패했습니다.");
     }
