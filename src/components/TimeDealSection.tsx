@@ -61,53 +61,89 @@ export default function TimeDealSection() {
           alignItems: "center",
         }}
       >
-        <Button
-          className="swiper-button-prev custom-swiper-nav"
-          color="secondary"
-          sx={{
-            position: "absolute",
-            left: -24,
-            zIndex: 10,
-          }}
-        ></Button>
-        <Swiper
-          modules={[Navigation, Autoplay]}
-          slidesPerView={3}
-          spaceBetween={16}
-          navigation={{
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev",
-          }}
-          autoplay={{ delay: 4000, disableOnInteraction: false }}
-          style={{ padding: "8px 0" }}
-          breakpoints={{
-            0: { slidesPerView: 1 },
-            600: { slidesPerView: 2 },
-            900: { slidesPerView: 3 },
-          }}
-        >
-          {data.map((timeDealItem) =>
-            timeDealItem.items?.map((item) => (
-              <SwiperSlide key={item.itemId}>
-                <ItemCard
-                  {...item}
-                  itemStatus="TIME_DEAL"
-                  discountRatio={timeDealItem.discountRatio}
-                  endTimeDeal={timeDealItem.endTime}
-                />
-              </SwiperSlide>
-            ))
-          )}
-        </Swiper>
-        <Button
-          className="swiper-button-next custom-swiper-nav"
-          color="secondary"
-          sx={{
-            position: "absolute",
-            right: -24,
-            zIndex: 10,
-          }}
-        ></Button>
+        {data.length === 1 && data[0].items?.length === 1 ? (
+          // 아이템이 1개일 때: Swiper 없이 중앙 정렬
+          <Box
+            sx={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
+            <ItemCard
+              {...data[0].items[0]}
+              itemStatus="TIME_DEAL"
+              discountRatio={data[0].discountRatio}
+              endTimeDeal={data[0].endTime}
+            />
+          </Box>
+        ) : data.length === 1 && data[0].items?.length === 2 ? (
+          // 아이템이 2개일 때: Swiper 없이 두 개를 가로로 중앙 정렬
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              gap: 2, // 카드 사이 간격
+            }}
+          >
+            {data[0].items.map((item) => (
+              <ItemCard
+                key={item.itemId}
+                {...item}
+                itemStatus="TIME_DEAL"
+                discountRatio={data[0].discountRatio}
+                endTimeDeal={data[0].endTime}
+              />
+            ))}
+          </Box>
+        ) : (
+          <>
+            <Button
+              className="swiper-button-prev custom-swiper-nav"
+              color="secondary"
+              sx={{
+                position: "absolute",
+                left: -24,
+                zIndex: 10,
+              }}
+            ></Button>
+            <Swiper
+              modules={[Navigation, Autoplay]}
+              slidesPerView={3}
+              spaceBetween={16}
+              navigation={{
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+              }}
+              autoplay={{ delay: 4000, disableOnInteraction: false }}
+              style={{ padding: "8px 0" }}
+              breakpoints={{
+                0: { slidesPerView: 1 },
+                600: { slidesPerView: 2 },
+                900: { slidesPerView: 3 },
+              }}
+            >
+              {data.map((timeDealItem) =>
+                timeDealItem.items?.map((item) => (
+                  <SwiperSlide key={item.itemId}>
+                    <ItemCard
+                      {...item}
+                      itemStatus="TIME_DEAL"
+                      discountRatio={timeDealItem.discountRatio}
+                      endTimeDeal={timeDealItem.endTime}
+                    />
+                  </SwiperSlide>
+                ))
+              )}
+            </Swiper>
+            <Button
+              className="swiper-button-next custom-swiper-nav"
+              color="secondary"
+              sx={{
+                position: "absolute",
+                right: -24,
+                zIndex: 10,
+              }}
+            ></Button>
+          </>
+        )}
       </Box>
     </Box>
   );

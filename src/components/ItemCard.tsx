@@ -129,6 +129,7 @@ export default function ItemCard({
 function getTimeLeftString(endTimeDeal?: Date): string {
   if (!endTimeDeal) return "00:00:00";
   const now = new Date();
+  now.setHours(now.getHours() - 9);
   const diff = Math.max(0, endTimeDeal.getTime() - now.getTime());
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
