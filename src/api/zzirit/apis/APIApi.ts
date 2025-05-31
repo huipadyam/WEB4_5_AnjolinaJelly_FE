@@ -25,8 +25,8 @@ import type {
   BaseResponseObject,
   BaseResponsePageResponseAdminItemFetchResponse,
   BaseResponsePageResponseCurrentTimeDealFetchResponse,
+  BaseResponsePageResponseItemFetchQueryResponse,
   BaseResponsePageResponseOrderFetchResponse,
-  BaseResponsePageResponseSimpleItemFetchResponse,
   BaseResponsePageResponseTimeDealFetchResponse,
   BaseResponseTimeDealCreateResponse,
   CartItemCreateRequest,
@@ -56,10 +56,10 @@ import {
     BaseResponsePageResponseAdminItemFetchResponseToJSON,
     BaseResponsePageResponseCurrentTimeDealFetchResponseFromJSON,
     BaseResponsePageResponseCurrentTimeDealFetchResponseToJSON,
+    BaseResponsePageResponseItemFetchQueryResponseFromJSON,
+    BaseResponsePageResponseItemFetchQueryResponseToJSON,
     BaseResponsePageResponseOrderFetchResponseFromJSON,
     BaseResponsePageResponseOrderFetchResponseToJSON,
-    BaseResponsePageResponseSimpleItemFetchResponseFromJSON,
-    BaseResponsePageResponseSimpleItemFetchResponseToJSON,
     BaseResponsePageResponseTimeDealFetchResponseFromJSON,
     BaseResponsePageResponseTimeDealFetchResponseToJSON,
     BaseResponseTimeDealCreateResponseFromJSON,
@@ -964,7 +964,7 @@ export class APIApi extends runtime.BaseAPI {
      * 상품을 조회하고 검색합니다.
      * 상품 조회 및 검색
      */
-    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseSimpleItemFetchResponse>> {
+    async searchRaw(requestParameters: SearchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<BaseResponsePageResponseItemFetchQueryResponse>> {
         const queryParameters: any = {};
 
         if (requestParameters['types'] != null) {
@@ -1008,14 +1008,14 @@ export class APIApi extends runtime.BaseAPI {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseSimpleItemFetchResponseFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => BaseResponsePageResponseItemFetchQueryResponseFromJSON(jsonValue));
     }
 
     /**
      * 상품을 조회하고 검색합니다.
      * 상품 조회 및 검색
      */
-    async search(requestParameters: SearchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseSimpleItemFetchResponse> {
+    async search(requestParameters: SearchRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<BaseResponsePageResponseItemFetchQueryResponse> {
         const response = await this.searchRaw(requestParameters, initOverrides);
         return await response.value();
     }
