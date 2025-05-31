@@ -7,7 +7,7 @@ import {
 } from "@tanstack/react-query";
 import { client } from "@/api/zzirit/client";
 import { itemKeys, timeDealKeys } from "./queryKeys";
-import { PageResponseSimpleItemFetchResponse } from "@/api/zzirit";
+import { PageResponseItemFetchQueryResponse } from "@/api/zzirit";
 
 // 상품 상세 조회 쿼리
 export function useItemDetailQuery(id: number) {
@@ -59,7 +59,7 @@ export interface InfiniteItemsQueryParams {
 
 export function useInfiniteItemsQuery(params: InfiniteItemsQueryParams = {}) {
   const { pageSize = 20, keyword, types, brands, sort } = params;
-  return useInfiniteQuery<PageResponseSimpleItemFetchResponse, Error>({
+  return useInfiniteQuery<PageResponseItemFetchQueryResponse, Error>({
     queryKey: [itemKeys.all, { keyword, types, brands, sort }],
     queryFn: async (ctx: QueryFunctionContext) => {
       const pageParam = ctx.pageParam as number | undefined;

@@ -18,8 +18,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { Google as GoogleIcon } from "@mui/icons-material";
-import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 import { alertService } from "@/components/admin/AlertSnackbar";
 import { OAUTH_BASE_URL } from "@/constants/oauth";
@@ -254,7 +253,7 @@ export default function SignIn() {
             fullWidth
             variant="outlined"
             startIcon={
-              <Image
+              <img
                 src="/oauth_google.png"
                 alt="Google"
                 width={24}
@@ -284,12 +283,7 @@ export default function SignIn() {
             fullWidth
             variant="contained"
             startIcon={
-              <Image
-                src="/oauth_kakao.png"
-                alt="Kakao"
-                width={16}
-                height={16}
-              />
+              <img src="/oauth_kakao.png" alt="Kakao" width={16} height={16} />
             }
             onClick={() => {
               window.location.href = `${OAUTH_BASE_URL}/kakao`;
@@ -312,12 +306,7 @@ export default function SignIn() {
             fullWidth
             variant="contained"
             startIcon={
-              <Image
-                src="/oauth_naver.png"
-                alt="Naver"
-                width={30}
-                height={30}
-              />
+              <img src="/oauth_naver.png" alt="Naver" width={30} height={30} />
             }
             onClick={() => {
               window.location.href = `${OAUTH_BASE_URL}/naver`;
