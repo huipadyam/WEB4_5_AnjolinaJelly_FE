@@ -26,6 +26,7 @@ export interface TimeDeal {
 export type TimeDealSearchField = "timeDealName" | "timeDealId";
 
 export function useTimeDealsWithPagination(initialPage = 1) {
+  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [timeDeals, setTimeDeals] = useState<TimeDeal[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(initialPage);
@@ -51,6 +52,7 @@ export function useTimeDealsWithPagination(initialPage = 1) {
       const params = {
         page: currentPage - 1, // API는 0부터 시작하는 페이지 인덱스 사용
         size: 10,
+        status: statusFilter, // 모든 상태 조회 시 파라미터 제외
       } as Record<string, string | number>;
 
       // 검색어가 있는 경우 검색 필드에 따라 파라미터 추가
@@ -89,7 +91,7 @@ export function useTimeDealsWithPagination(initialPage = 1) {
             };
           }) || [];
 
-        setTimeDeals(apiTimeDeals);
+        setTimeDeals(apiTimeDeals.reverse());
         if (response.result.totalPages !== undefined) {
           setTotalPages(response.result.totalPages);
         }
@@ -104,7 +106,7 @@ export function useTimeDealsWithPagination(initialPage = 1) {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, activeSearchField, activeSearchQuery]);
+  }, [currentPage, activeSearchField, activeSearchQuery, statusFilter]);
 
   useEffect(() => {
     fetchTimeDeals();
@@ -159,6 +161,11 @@ export function useTimeDealsWithPagination(initialPage = 1) {
   };
 
   return {
+    statusFilter,
+    setStatusFilter: (status: string | null) => {
+      setStatusFilter(status);
+      setCurrentPage(1);
+    },
     timeDeals,
     loading,
     error,

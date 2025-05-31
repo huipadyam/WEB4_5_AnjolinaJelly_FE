@@ -4,7 +4,7 @@ import { Card, CardContent, Typography, Stack } from "@mui/material";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import ImageWithFallback from "./ImageWithFallback";
 import Link from "next/link";
-import { SimpleItemFetchResponse } from "@/api/zzirit";
+import { ItemFetchResponse } from "@/api/zzirit/models";
 
 export default function ItemCard({
   imageUrl,
@@ -16,7 +16,7 @@ export default function ItemCard({
   originalPrice,
   discountRatio,
   endTimeDeal,
-}: SimpleItemFetchResponse) {
+}: ItemFetchResponse) {
   const timeLeft = useTimeLeft(endTimeDeal);
   // 타임딜 카드
   if (itemStatus === "TIME_DEAL") {
@@ -129,6 +129,7 @@ export default function ItemCard({
 function getTimeLeftString(endTimeDeal?: Date): string {
   if (!endTimeDeal) return "00:00:00";
   const now = new Date();
+  now.setHours(now.getHours() - 9);
   const diff = Math.max(0, endTimeDeal.getTime() - now.getTime());
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));

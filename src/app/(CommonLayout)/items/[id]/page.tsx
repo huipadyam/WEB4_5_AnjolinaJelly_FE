@@ -26,6 +26,7 @@ function formatPrice(price?: number) {
 // 남은 시간 계산
 function getTimeLeft(end: Date) {
   const now = new Date();
+  now.setHours(now.getHours() - 9);
   const diff = end.getTime() - now.getTime();
   if (diff <= 0) return "종료됨";
   const h = Math.floor(diff / 1000 / 60 / 60);

@@ -8,8 +8,9 @@ import { useTimeDealsWithPagination } from "@/hooks/useTimeDealsWithPagination";
 
 export default function TimeDealManagementTab() {
   const [expandedDealId, setExpandedDealId] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const {
+    statusFilter,
+    setStatusFilter,
     timeDeals,
     loading,
     currentPage: timeDealsCurrentPage,

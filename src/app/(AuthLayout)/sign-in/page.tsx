@@ -18,8 +18,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material";
-import { Google as GoogleIcon } from "@mui/icons-material";
-import Image from "next/image";
+
 import { useRouter } from "next/navigation";
 import { alertService } from "@/components/admin/AlertSnackbar";
 import { OAUTH_BASE_URL } from "@/constants/oauth";
@@ -253,11 +252,19 @@ export default function SignIn() {
           <Button
             fullWidth
             variant="outlined"
-            startIcon={<GoogleIcon />}
+            startIcon={
+              <img
+                src="/oauth_google.png"
+                alt="Google"
+                width={24}
+                height={24}
+              />
+            }
             onClick={() => {
               window.location.href = `${OAUTH_BASE_URL}/google`;
             }}
             sx={{
+              height: "48px",
               borderColor: "#E0E0E0",
               color: "#000000",
               backgroundColor: "#FFFFFF",
@@ -276,12 +283,13 @@ export default function SignIn() {
             fullWidth
             variant="contained"
             startIcon={
-              <Image src="/kakao-logo.png" alt="Kakao" width={20} height={20} />
+              <img src="/oauth_kakao.png" alt="Kakao" width={16} height={16} />
             }
             onClick={() => {
               window.location.href = `${OAUTH_BASE_URL}/kakao`;
             }}
             sx={{
+              height: "48px",
               backgroundColor: "#FEE500",
               color: "#000000",
               "&:hover": {
@@ -298,12 +306,13 @@ export default function SignIn() {
             fullWidth
             variant="contained"
             startIcon={
-              <Image src="/naver-logo.png" alt="Naver" width={20} height={20} />
+              <img src="/oauth_naver.png" alt="Naver" width={30} height={30} />
             }
             onClick={() => {
               window.location.href = `${OAUTH_BASE_URL}/naver`;
             }}
             sx={{
+              height: "48px",
               backgroundColor: "#03C75A",
               color: "#FFFFFF",
               "&:hover": {

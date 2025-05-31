@@ -16,8 +16,8 @@ models/BaseResponseMyPageInfoResponse.ts
 models/BaseResponseObject.ts
 models/BaseResponsePageResponseAdminItemFetchResponse.ts
 models/BaseResponsePageResponseCurrentTimeDealFetchResponse.ts
+models/BaseResponsePageResponseItemFetchQueryResponse.ts
 models/BaseResponsePageResponseOrderFetchResponse.ts
-models/BaseResponsePageResponseSimpleItemFetchResponse.ts
 models/BaseResponsePageResponseTimeDealFetchResponse.ts
 models/BaseResponsePaymentConfirmResponse.ts
 models/BaseResponsePaymentInitResponse.ts
@@ -34,6 +34,7 @@ models/EmailAuthRequest.ts
 models/EmailAuthVerifyRequest.ts
 models/ImageUploadResponse.ts
 models/ItemCreateRequest.ts
+models/ItemFetchQueryResponse.ts
 models/ItemFetchResponse.ts
 models/ItemUpdateRequest.ts
 models/MyPageInfoResponse.ts
@@ -42,14 +43,13 @@ models/OrderItemCreateRequest.ts
 models/OrderItemFetchResponse.ts
 models/PageResponseAdminItemFetchResponse.ts
 models/PageResponseCurrentTimeDealFetchResponse.ts
+models/PageResponseItemFetchQueryResponse.ts
 models/PageResponseOrderFetchResponse.ts
-models/PageResponseSimpleItemFetchResponse.ts
 models/PageResponseTimeDealFetchResponse.ts
 models/PaymentConfirmResponse.ts
 models/PaymentInitResponse.ts
 models/PaymentRequest.ts
 models/SignupRequest.ts
-models/SimpleItemFetchResponse.ts
 models/SocialSignupRequest.ts
 models/TimeDealCreateItem.ts
 models/TimeDealCreateItemDetail.ts

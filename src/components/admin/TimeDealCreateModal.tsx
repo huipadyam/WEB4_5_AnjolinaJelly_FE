@@ -181,7 +181,7 @@ export default function TimeDealCreateModal({
     } catch (error) {
       const err = error as ResponseError;
       const message = await err.response.json();
-      alertService.showAlert(message.message, "error");
+      alertService.showAlert(`${message.message}\n${message.result}`, "error");
     } finally {
       setLoading(false);
     }

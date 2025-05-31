@@ -13,9 +13,10 @@ import {
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import Image from "next/image";
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Header() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -74,7 +75,6 @@ export default function Header() {
             alt="Zzirit 로고"
             width={72}
             height={36}
-            objectFit="cover"
           />
         </Link>
 

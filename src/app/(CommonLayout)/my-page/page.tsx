@@ -17,6 +17,7 @@ import {
 import ImageWithFallback from "@/components/ImageWithFallback";
 import { useGetMyPageInfo } from "@/queries/member";
 import { useGetMyOrdersInfinite } from "@/queries/order";
+import { client } from "@/api/zzirit/client";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {
@@ -92,6 +93,12 @@ export default function MyPage() {
   };
   // 주소 수정 저장
   const handleEditSave = () => {
+    client.auth.updateAddress({
+      addressUpdateRequest: {
+        memberAddress: editAddress,
+        memberAddressDetail: editDetailAddress,
+      },
+    });
     setAddress(editAddress);
     setDetailAddress(editDetailAddress);
     setEditOpen(false);

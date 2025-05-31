@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Image, { ImageProps } from "next/image";
 
 // 20개의 임시 이미지 링크 배열
 const fallbackImages = [
@@ -30,7 +29,10 @@ const getFallbackIndex = (key: string) => {
   return num % fallbackImages.length;
 };
 
-type ImageWithFallbackProps = Omit<ImageProps, "src" | "alt"> & {
+type ImageWithFallbackProps = Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt"
+> & {
   src: string;
   alt: string;
   fallbackKey?: string;
@@ -49,10 +51,10 @@ export default function ImageWithFallback(props: ImageWithFallbackProps) {
     }
   };
 
-  // errorCount가 1 이상이면 <img> fallback, 아니면 <Image> 사용
+  // errorCount가 1 이상이면 <img> fallback, 아니면 <img> 사용
   // if (errorCount === 0) {
   //   return (
-  //     <Image
+  //     <img
   //       src={src}
   //       alt={alt}
   //       width={Number(width ?? 100)}
@@ -64,7 +66,7 @@ export default function ImageWithFallback(props: ImageWithFallbackProps) {
   // }
 
   return (
-    <Image
+    <img
       key={String(imgSrc) + errorCount}
       src={String(imgSrc)}
       alt={alt}

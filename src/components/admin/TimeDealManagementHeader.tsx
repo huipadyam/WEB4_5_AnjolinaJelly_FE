@@ -162,7 +162,9 @@ export default function TimeDealManagementHeader({
         >
           <Button
             variant={!statusFilter ? "contained" : "outlined"}
-            onClick={() => setStatusFilter(null)}
+            onClick={() => {
+              setStatusFilter(null);
+            }}
             sx={{
               borderRadius: 1.5,
               height: elementHeight,
@@ -195,8 +197,8 @@ export default function TimeDealManagementHeader({
             진행중
           </Button>
           <Button
-            variant={statusFilter === "UPCOMING" ? "contained" : "outlined"}
-            onClick={() => setStatusFilter("UPCOMING")}
+            variant={statusFilter === "SCHEDULED" ? "contained" : "outlined"}
+            onClick={() => setStatusFilter("SCHEDULED")}
             sx={{
               borderRadius: 1.5,
               height: elementHeight,
@@ -204,7 +206,7 @@ export default function TimeDealManagementHeader({
               fontSize: "0.875rem",
               fontWeight: 500,
               whiteSpace: "nowrap",
-              ...(statusFilter === "UPCOMING"
+              ...(statusFilter === "SCHEDULED"
                 ? { bgcolor: theme.palette.info.main }
                 : { color: theme.palette.info.main }),
             }}
