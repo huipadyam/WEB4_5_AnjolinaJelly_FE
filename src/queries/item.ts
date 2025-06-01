@@ -78,6 +78,6 @@ export function useInfiniteItemsQuery(params: InfiniteItemsQueryParams = {}) {
       if (lastPage.last) return undefined;
       return allPages.length + 1;
     },
-    initialPageParam: 1,
+    initialPageParam: 0,
   });
 }
