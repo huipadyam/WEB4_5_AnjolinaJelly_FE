@@ -18,6 +18,8 @@ import ImageWithFallback from "@/components/ImageWithFallback";
 import { useGetMyPageInfo } from "@/queries/member";
 import { useGetMyOrdersInfinite } from "@/queries/order";
 import { client } from "@/api/zzirit/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { orderKeys } from "@/queries/queryKeys";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {
@@ -47,6 +49,8 @@ export default function MyPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [editAddress, setEditAddress] = useState("");
   const [editDetailAddress, setEditDetailAddress] = useState("");
+
+  const queryClient = useQueryClient();
 
   // 쿼리 데이터가 바뀔 때 주소 상태 동기화
   React.useEffect(() => {
@@ -102,6 +106,20 @@ export default function MyPage() {
     setAddress(editAddress);
     setDetailAddress(editDetailAddress);
     setEditOpen(false);
+  };
+
+  // 주문 취소
+  const handleOrderCancel = async (orderId: number) => {
+    try {
+      await client.api.cancelOrder({
+        orderId: orderId,
+      });
+
+      // 취소 성공 시 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: orderKeys.all });
+    } catch (error) {
+      console.error("주문 취소 실패:", error);
+    }
   };
 
   // 무한 스크롤 주문 내역 쿼리
@@ -269,30 +287,44 @@ export default function MyPage() {
                           new Date(order.orderDate).toLocaleDateString()}{" "}
                         {"|"} 주문번호: {order.orderNumber}
                       </Typography>
-                      <Typography
-                        color={
-                          order.orderStatus === "PAID"
-                            ? "success"
+
+                      <Stack direction="row" spacing={1} alignItems="center">
+                        <Typography
+                          color={
+                            order.orderStatus === "PAID"
+                              ? "success"
+                              : order.orderStatus === "COMPLETED"
+                              ? "info"
+                              : order.orderStatus === "CANCELLED"
+                              ? "error"
+                              : "secondary"
+                          }
+                          fontWeight="bold"
+                        >
+                          {order.orderStatus === "PAID"
+                            ? "결제완료"
                             : order.orderStatus === "COMPLETED"
-                            ? "info"
+                            ? "구매확정"
                             : order.orderStatus === "CANCELLED"
-                            ? "error"
-                            : "secondary"
-                        }
-                        fontWeight="bold"
-                      >
-                        {order.orderStatus === "PAID"
-                          ? "결제완료"
-                          : order.orderStatus === "COMPLETED"
-                          ? "구매확정"
-                          : order.orderStatus === "CANCELLED"
-                          ? "취소됨"
-                          : order.orderStatus === "PENDING"
-                          ? "결제대기"
-                          : order.orderStatus === "FAILED"
-                          ? "결제실패"
-                          : order.orderStatus}
-                      </Typography>
+                            ? "취소됨"
+                            : order.orderStatus === "PENDING"
+                            ? "결제대기"
+                            : order.orderStatus === "FAILED"
+                            ? "결제실패"
+                            : order.orderStatus}
+                        </Typography>
+
+                        {order.orderStatus === "PAID" && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleOrderCancel(order.orderId!)}
+                          >
+                            주문취소
+                          </Button>
+                        )}
+                      </Stack>
                     </Stack>
                     <Divider sx={{ my: 1 }} />
                     {/* 주문 상품 목록 */}
