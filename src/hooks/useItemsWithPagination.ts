@@ -124,6 +124,7 @@ export function useItemsWithPagination(initialPage = 1) {
       const params = {
         page: currentPage - 1,
         size: 10,
+        sort: "desc",
       } as Record<string, string | number>;
 
       if (activeSearchQuery) {
