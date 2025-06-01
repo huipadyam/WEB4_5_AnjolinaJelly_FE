@@ -74,8 +74,8 @@ export default function OrderPage() {
           orderId: orderId,
           orderName: "주문 결제",
           customerName: myPageInfo?.memberName ?? "",
-          successUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/payment/success`,
-          failUrl: `${process.env.NEXT_PUBLIC_CLIENT_URL}/payment/fail?orderId=${orderId}`,
+          successUrl: `https://zzirit.vercel.app/payment/success`,
+          failUrl: `https://zzirit.vercel.app/payment/fail?orderId=${orderId}`,
         });
       } catch (e) {
         console.error(e);
