@@ -16,10 +16,11 @@ import {
 } from "@mui/material";
 import ImageWithFallback from "@/components/ImageWithFallback";
 import { useGetMyPageInfo } from "@/queries/member";
-import { useGetMyOrdersInfinite } from "@/queries/order";
+import {
+  useCancelOrderMutation,
+  useGetMyOrdersInfinite,
+} from "@/queries/order";
 import { client } from "@/api/zzirit/client";
-import { useQueryClient } from "@tanstack/react-query";
-import { orderKeys } from "@/queries/queryKeys";
 
 // 카카오 주소 API 타입 선언 (회원가입 참고)
 interface DaumPostcodeData {
@@ -50,7 +51,7 @@ export default function MyPage() {
   const [editAddress, setEditAddress] = useState("");
   const [editDetailAddress, setEditDetailAddress] = useState("");
 
-  const queryClient = useQueryClient();
+  const cancelOrderMutation = useCancelOrderMutation();
 
   // 쿼리 데이터가 바뀔 때 주소 상태 동기화
   React.useEffect(() => {
@@ -109,17 +110,12 @@ export default function MyPage() {
   };
 
   // 주문 취소
-  const handleOrderCancel = async (orderId: number) => {
-    try {
-      await client.api.cancelOrder({
-        orderId: orderId,
-      });
-
-      // 취소 성공 시 캐시 무효화
-      queryClient.invalidateQueries({ queryKey: orderKeys.all });
-    } catch (error) {
-      console.error("주문 취소 실패:", error);
-    }
+  const handleOrderCancel = (orderId: number) => {
+    cancelOrderMutation.mutate(orderId, {
+      onError: (error: unknown) => {
+        console.error("주문 취소 실패:", error, "주문 아이디:", orderId);
+      },
+    });
   };
 
   // 무한 스크롤 주문 내역 쿼리
