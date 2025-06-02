@@ -24,21 +24,19 @@ export default function PaymentSuccessPage() {
 
   const { data: orders, refetch } = useGetMyOrders();
 
-  // 주문 정보 찾기 (orderId는 string, orders의 orderId는 number)
   const order = useMemo(() => {
     if (!orders || !orderId) return null;
-    // orderId가 'ORDER-123' 형태라면 숫자만 추출
-    const parsedOrderId = Number(orderId.split("-").pop());
-    const foundOrder = orders.find((order) => order.orderId === parsedOrderId);
+
+    const foundOrder = orders.find((order) => order.orderNumber === orderId);
 
     if (!foundOrder) {
-      const maxAttempts = 30; // 1분 = 60초, 2초마다 = 30번
+      const maxAttempts = 30;
       const attemptCount = orders.length;
 
       if (attemptCount < maxAttempts) {
         setTimeout(() => {
           refetch();
-        }, 2000); // 2초마다 요청
+        }, 2000);
       }
     }
 
